@@ -1,0 +1,4 @@
+#RULES_TOP
+include $(CONFIG)/RULES_TOP
+
+# vim:syntax=make

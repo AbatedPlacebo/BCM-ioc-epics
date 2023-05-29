@@ -1,0 +1,36 @@
+#!../../bin/_EPICS_HOST_ARCH_/BCM
+
+## You may have to change stab to something else
+## everywhere it appears in this file
+
+< envPaths
+
+epicsEnvSet("IOCSH_PS1","BCM> ")
+
+cd ${TOP}
+
+## Register all support components
+dbLoadDatabase "dbd/BCM.dbd"
+BCM_registerRecordDeviceDriver pdbbase
+
+## Load record instances
+#dbLoadTemplate "db/userHost.substitutions"
+#dbLoadRecords "db/dbSubExample.db", "user=bhHost"
+dbLoadRecords "db/BCM.db", "P=V:"
+dbLoadRecords "db/BCMProc.db", "P=V:"
+
+## Set this to see messages from mySub
+#var mySubDebug 1
+
+## Run this to trace the stages of iocInit
+#traceIocInit
+
+# asSetFilename("${TOP}/${FILE_ACF}.acf")
+### ACF_SET_FILENAME_PLACEHOLDER
+
+BCM_init 1
+cd ${TOP}/iocBoot/${IOC}
+iocInit
+
+## Start any sequence programs
+#seq sncExample, "user=bhHost"

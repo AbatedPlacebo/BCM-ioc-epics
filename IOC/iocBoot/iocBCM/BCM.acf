@@ -1,0 +1,14 @@
+#UAG(uag) {username}
+#HAG(hag1) {hostname}
+#HAG(hag2) {hostname1,hostname2}
+#ASG(DEFAULT) {
+#	RULE(1,READ)
+#	RULE(1,WRITE) {
+#		UAG(uag)
+#		HAG(hag1)
+#	}
+#	RULE(1,WRITE) {
+#		HAG(hag2)
+#	}
+#}
+

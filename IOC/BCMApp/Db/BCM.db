@@ -1,0 +1,5 @@
+record(calc, "$(P)heart_") {
+  field(CALC, "A+1")
+  field(INPA, "$(P)heart_")
+  field(SCAN, "1 second")
+}

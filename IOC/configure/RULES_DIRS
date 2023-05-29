@@ -1,0 +1,4 @@
+#RULES_DIRS
+include $(CONFIG)/RULES_DIRS
+
+# vim:syntax=make

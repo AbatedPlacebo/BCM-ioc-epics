@@ -1,0 +1,10 @@
+let g:syntastic_cpp_include_dirs = ['/usr/lib/epics/include/',"inc","genlib"]
+let g:syntastic_c_include_dirs = ['/usr/lib/epics/include/',"inc","genlib"]
+"let g:syntastic_cpp_include_dirs = ['libs/dir2/dir3', 'libs/dir2 ]
+"let g:syntastic_cpp_config_file = '.syntastic_config'
+"let g:syntastic_c_config_file = '.syntastic_config'
+let g:syntastic_check_on_open=1
+let g:syntastic_enable_signs=1
+let g:syntastic_cpp_check_header = 1
+let g:syntastic_cpp_remove_include_errors = 1
+" vim: set expandtab smartindent tabstop=2 shiftwidth=2:
