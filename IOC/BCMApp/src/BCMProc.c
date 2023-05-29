@@ -148,12 +148,6 @@ static void BCM_run(void* arg)
 	D(0, ("TRACE\n"));
 
 	while(ioc_work) {
-		/***************************************************************/
-		/*                                                             */
-		/* Главный рабочий цикл, здесь вся полезная работа и присходит */
-		/*                                                             */
-		/***************************************************************/
-
 		if(	epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
 			D(3,("произошло обновление pv для записи или мониторинга\n"));
 		}
@@ -203,17 +197,15 @@ static void BCM_run(void* arg)
 			int connecting = BCM.connected; 
 			commandlist* ptr = buffer;	
 			while (connecting == 1 && ptr != NULL){
-//				command_execution(ptr, &con);
+				command_execution(ptr, &con);
 				int i;
 				switch(ptr->number){
 					case READ_BUFFER:
 						D(0,("reading %d\n", ptr->result_size));
-//						if (ptr->result_size == 0)
-//							break;
-//						for (i = 0; i < BCM.wndLen; i++)
-//							BCM.arr[i] = result[i];
+						if (ptr->result_size == 0)
+							break;
 						for (i = 0; i < BCM.wndLen; i++)
-							BCM.arr[i] = 75*sin(i/10.0);
+							BCM.arr[i] = ptr->result[i];
 						BCM.arr_ne = BCM.wndLen;
 						if (BCM.QK == 0)
 							BCM.QK = 1;
