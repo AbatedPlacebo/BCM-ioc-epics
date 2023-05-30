@@ -118,10 +118,9 @@ void my_strcpy(char** dest, const char* source){
 	strcpy(*dest, source);
 }
 
-void debug_printf(void* ptr, int n){
-	int i;
-	if (debug_mode == 1)
-		for (i = 0; i < n; i++){
-			printf("%x\n", ((byte*)ptr)[i]);
-		}
+void dbg_printf(const char *fmt, ...){
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
 }

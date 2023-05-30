@@ -12,6 +12,8 @@
 #define COMM_LIST_COUNT 7
 #define ADDCOM_LIST_COUNT 3
 
+#define TRACE(x) do { if (debug_mode) dbg_printf x; } while (0)
+
 typedef unsigned char byte;
 typedef byte page[1034];
 
@@ -66,6 +68,6 @@ int free_list(commandlist** curlist);
 
 void my_strcpy(char** dest, const char* source);
 
-void debug_printf(void* ptr, int n);
+void dbg_printf(const char *fmt, ...);
 
 #endif

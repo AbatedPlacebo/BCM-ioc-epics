@@ -1,3 +1,20 @@
-# Beam Current Monior Input-Output Controller (EPICS)
+Title:   readme
 
-Beam Current Monior Input-Output Controller (EPICS)
+[TOP](index)
+
+{{TOC}}
+
+Заготовка genlib IOC
+
+# Получение
+
+
+```sh
+ln -s <path_to_genlib_example>/makeIOCfromGenlibTemplate.sh ~/bin
+```
+
+```sh
+makeIOCfromGenlibTemplate.sh -h
+makeIOCfromGenlibTemplate.sh -app appname
+```
+

@@ -14,8 +14,7 @@ byte* createmessage(commandlist* commands){
 	if (command == 4){
 		int firstpage = 0;
 		int secondpage = 127;
-		if (commands->args[0] != NULL &&
-			commands->args[1] != NULL) {
+		if (commands->args != NULL) {
 			firstpage = commands->args[0];
 			secondpage = commands->args[1];
 		}
@@ -36,11 +35,10 @@ byte* read_packet(int length, connection_credentials* con){
 	if (length == 0)
 		return NULL;
 	byte* buf = (byte*)malloc(sizeof(byte) * length);
-	int n = recvfrom(con->sockfd, buf, length, 0, &(con->serveraddr), sizeof(con->serveraddr)); 
+	int n = recvfrom(con->sockfd, buf, length, 0, NULL, NULL); 
 	if (n < 0) {
 		return NULL;
 	}
-	debug_printf(buf, length);
 	return buf;
 }
 
@@ -52,6 +50,7 @@ byte* read_register(commandlist* commands, connection_credentials* con){
 	commands->result_size = 1;
 	return buf;
 }
+
 byte* readADC(commandlist* commands, connection_credentials* con){
 	int* result;
 	int begin = commands->args[0];
@@ -63,7 +62,7 @@ byte* readADC(commandlist* commands, connection_credentials* con){
 		result[i] = 0;
 	}
 	int j = 0;
-	byte* pages = (byte*)malloc(sizeof(byte) * count * 1034);
+	byte** pages = (byte**)malloc(sizeof(byte*) * count);
 	int k;
 	int error = 0;
 	for (k = 0; k < count; k++){
@@ -91,7 +90,7 @@ int command_execution(commandlist* commands, connection_credentials* con){
 	byte* sendmessage = createmessage(commands);
 	n = sendto(con->sockfd, sendmessage, 6, 0, &(con->serveraddr), sizeof(con->serveraddr));
 	if (n < 0) {
-		debug_printf(n, 1);
+		TRACE(("%d\n", n));
 		return 1;
 	}
 	buf = read_packet(4, con);
