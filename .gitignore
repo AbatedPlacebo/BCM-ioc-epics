@@ -5,3 +5,5 @@ db
 dbd
 envPaths
 /configure/*.local
+*.swp
+*.swo
