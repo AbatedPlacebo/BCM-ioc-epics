@@ -1,19 +1,19 @@
 #include "BCMCommunication.h"
 
-byte* createmessage(commandlist* commands){
-	byte* array;
-	array = (byte*)malloc(sizeof(byte)*6);
-	int command = commands->number;
+int createmessage(byte* array, int size, commandlist* commands){
+	if (size < SEND_MESSAGE_SIZE)
+		return 1;
+	enum commands command = commands->number;
 	array[0] = commands->input_number;
 	int i;
-	for (i = 1; i < 6; i++)
+	for (i = 1; i < size; i++)
 		array[i] = 0x00;
-	if (command == 0 || command == 2){
+	if (command == WRITE_REGISTER || command == READ_REGISTER){
 		array[1] = commands->args[0];
 	}
-	if (command == 4){
-		int firstpage = 0;
-		int secondpage = 127;
+	if (command == READ_BUFFER){
+		int firstpage = MIN_PAGE;
+		int secondpage = MAX_PAGE;
 		if (commands->args != NULL) {
 			firstpage = commands->args[0];
 			secondpage = commands->args[1];
@@ -23,85 +23,80 @@ byte* createmessage(commandlist* commands){
 		array[4] = secondpage >> 8;
 		array[5] = secondpage & 0xFF; 
 	}
-	if (command == 0){
+	if (command == WRITE_REGISTER){
 		int data = commands->args[1];
 		array[2] = data >> 8;
 		array[3] = data & 0xFF; 
 	}
-	return array;
+	return 0;
 }
 
-byte* read_packet(int length, connection_credentials* con){
+int read_packet(byte* buf, int length, connection_credentials* con){
 	if (length == 0)
-		return NULL;
-	byte* buf = (byte*)malloc(sizeof(byte) * length);
+		return 1;
 	int n = recvfrom(con->sockfd, buf, length, 0, NULL, NULL); 
 	if (n < 0) {
-		return NULL;
+		return 2;
 	}
-	return buf;
+	return 0;
 }
 
-byte* read_register(commandlist* commands, connection_credentials* con){
-	byte* buf = read_packet(commands->message_size, con);
+int read_register(byte* buf, commandlist* commands, connection_credentials* con){
+	read_packet(buf, commands->message_size, con);
 	int* result = (int*)malloc(sizeof(int));
 	*result = (buf[2] << 8) | (buf[3] & 0xFF);
 	commands->result = result;
 	commands->result_size = 1;
-	return buf;
+	return 0;
 }
 
-byte* readADC(commandlist* commands, connection_credentials* con){
+int readADC(byte* buf, commandlist* commands, connection_credentials* con){
 	int* result;
 	int begin = commands->args[0];
 	int end = commands->args[1];
 	int count = end - begin + 1;
 	result = (int*)malloc(sizeof(int) * count * 512);
 	int i;
+	int j = 0;
 	for (i = 0; i < count * 512; i++){
 		result[i] = 0;
 	}
-	int j = 0;
-	byte** pages = (byte**)malloc(sizeof(byte*) * count);
 	int k;
 	int error = 0;
 	for (k = 0; k < count; k++){
-		byte* buf = read_packet(commands->message_size, con);
-		if (buf == NULL){
+		int status = read_packet(buf, commands->message_size, con);
+		if (status > 0){
 			error++;
 			if (error == 3)
 				return NULL;
 			continue;
 		}
-		pages[k] = buf;
-		int i;
-		for (i = 10; i < commands->message_size; j++, i += 2){
-			result[j] = ((buf[i] << 8) | (buf[i+1] & 0xFF)) - 2048;
+		for (i = PAGE_POINTS_START; i < commands->message_size; j++, i += 2){
+			result[j] = ((buf[i] << 8) | (buf[i+1] & 0xFF)) - MAX_POINT_VALUE;
 		}
 	}	
 	commands->result = result;
 	commands->result_size = count * 512;
-	return pages;
 }
 
 int command_execution(commandlist* commands, connection_credentials* con){
-	byte* buf = NULL;
-	int n;
-	byte* sendmessage = createmessage(commands);
-	n = sendto(con->sockfd, sendmessage, 6, 0, &(con->serveraddr), sizeof(con->serveraddr));
+	byte buf[MAX_RECV_MESSAGE_SIZE];
+	byte sendmessage[SEND_MESSAGE_SIZE];
+	createmessage(sendmessage, SEND_MESSAGE_SIZE, commands);
+	int n = sendto(con->sockfd, sendmessage, SEND_MESSAGE_SIZE, 0, &(con->serveraddr), sizeof(con->serveraddr));
 	if (n < 0) {
 		TRACE(("%d\n", n));
 		return 1;
 	}
-	buf = read_packet(4, con);
-	if (commands->number == 4){
-		buf = (byte*)readADC(commands, con);
+	read_packet(buf, ACK_MESSAGE_SIZE, con);
+	if (commands->number == READ_BUFFER){
+		readADC(buf, commands, con);
 	}
-	if (commands->number == 2){
-		buf = (byte*)read_register(commands, con);
+	if (commands->number == READ_REGISTER){
+		read_register(buf, commands, con);
 	}
 	else {
-		buf = read_packet(commands->message_size, con);
+		read_packet(buf, commands->message_size, con);
 	}
 	return 0;
 }

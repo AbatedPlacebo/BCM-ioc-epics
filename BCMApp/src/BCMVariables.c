@@ -4,38 +4,34 @@
 // 1 - enabled
 int debug_mode = 0;
 
-int inputcommands[] = {
-	0x00, // write register
-	0x03, // start cycle
-	0x04, // read register
-	0x05, // reset cycle
-	0x08, // read ADC
-	0x06, // initialize generator
-	0x07, // reset counter
-	0x09, // flash write
-	0x0a, // ip rewrite
-	0x0f  // flash read
-};	
-
-int packetlengths[] = {
-	0,
-	2,
-	4,
-	0,
-	1034,
-	2,
-	0
+enum inputcommands_enum inputcommands[COMM_LIST_COUNT] = {
+	WRITE_REGISTER_COMM,
+	START_CYCLE_COMM,
+	READ_REGISTER_COMM,
+	STOP_CYCLE_COMM,
+	READ_BUFFER_COMM,
+	START_GENERATOR_COMM,
+	COUNT_RESET_COMM 
 };
 
+enum packetlengths_enum packetlengths[COMM_LIST_COUNT] = {
+	WRITE_REGISTER_RECVLEN,
+	START_CYCLE_RECVLEN,
+	READ_REGISTER_RECVLEN,
+	STOP_CYCLE_RECVLEN,
+	READ_BUFFER_RECVLEN,
+	START_GENERATOR_RECVLEN,
+	COUNT_RESET_RECVLEN
+}; 
 
-int command_args_num[] = {
-	2,
-	0,
-	1,
-	0,
-	2,
-	0,
-	0
+enum command_args_num_enum command_args_num[COMM_LIST_COUNT] = {
+	WRITE_REGISTER_ARGS,
+	START_CYCLE_ARGS,
+	READ_REGISTER_ARGS,
+	STOP_CYCLE_ARGS,
+	READ_BUFFER_ARGS,
+	START_GENERATOR_ARGS,
+	COUNT_RESET_ARGS 
 };
 
 char* args_message = "example: \"ip-address command [args] ...\"\n";
@@ -69,7 +65,6 @@ commandlist* create_next_command_node(commandlist** curlist, int _commandnumber,
 	list->input_number = inputcommands[_commandnumber];
 	list->message_size = packetlengths[_commandnumber];
 	list->args_count = command_args_num[_commandnumber];
-	list->output = 0;
 	list->result = NULL;
 	list->result_size = 0;
 	list->args = NULL;
@@ -104,7 +99,6 @@ int free_list(commandlist** curlist){
 	while (seekelem != NULL){
 		free(seekelem->result);
 		if (seekelem->args != NULL) free(seekelem->args);
-		seekelem->file_name = NULL;
 		prevelem = seekelem;
 		seekelem = seekelem->next;
 		free(prevelem);

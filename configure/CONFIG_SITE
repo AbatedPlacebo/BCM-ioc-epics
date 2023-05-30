@@ -25,6 +25,12 @@ CHECK_RELEASE = YES
 #   INSTALL_LOCATION here.
 #INSTALL_LOCATION=</path/name/to/install/top>
 
+# These allow developers to override the CONFIG_SITE variable
+# settings without having to modify the configure/CONFIG_SITE
+# file itself.
+-include $(TOP)/../CONFIG_SITE.local
+-include $(TOP)/configure/CONFIG_SITE.local
+
 # Set this when your IOC and the host use different paths
 #   to access the application. This will be needed to boot
 #   from a Microsoft FTP server or with some NFS mounts.
