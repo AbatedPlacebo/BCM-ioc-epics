@@ -1,0 +1,3 @@
+[submodule "genlib"]
+	path = genlib
+	url = https://star.inp.nsk.su/~bekhte/genlib.git
