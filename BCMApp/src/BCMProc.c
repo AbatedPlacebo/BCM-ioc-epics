@@ -189,6 +189,14 @@ static void BCM_run(void* arg)
 			free_list(&buf);
 			post_event(K2_EVENT);
 		}
+		if(	epicsEventTryWait(BCM.wndBeg_event) == epicsEventWaitOK ||
+			epicsEventTryWait(BCM.wndLen_event) == epicsEventWaitOK) {
+				if (BCM.wndBeg > BCM.wndLen){
+					int temp = BCM.wndBeg;
+					BCM.wndBeg = BCM.wndLen;
+					BCM.wndLen = temp;
+				}
+		}
 		//
 		//epicsEventWaitWithTimeout(work_event, 1.0);
 		//stab.injection = count;
@@ -198,19 +206,19 @@ static void BCM_run(void* arg)
 			commandlist* ptr = buffer;	
 			while (connecting == 1 && ptr != NULL){
 				command_execution(ptr, &con);
-				int i;
+				int i, j;
 				switch(ptr->number){
 					case READ_BUFFER:
 						D(0,("reading %d\n", ptr->result_size));
 						if (ptr->result_size == 0)
 							break;
-						for (i = 0; i < BCM.wndLen; i++)
+						for (i = 0, j = 0; i < ptr->result_size; i++, j++)
 							BCM.arr[i] = ptr->result[i];
-						BCM.arr_ne = BCM.wndLen;
+						BCM.arr_ne = ptr->result_size;
 						if (BCM.QK == 0)
 							BCM.QK = 1;
 						BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
-						BCM.timeQ = timeQ(BCM.arr, BCM.wndLen);
+						BCM.timeQ = timeQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
 						break;
 					default:
 						break;

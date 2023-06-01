@@ -43,22 +43,21 @@ int read_packet(byte* buf, int length, connection_credentials* con){
 
 int read_register(byte* buf, commandlist* commands, connection_credentials* con){
 	read_packet(buf, commands->message_size, con);
-	int* result = (int*)malloc(sizeof(int));
-	*result = (buf[2] << 8) | (buf[3] & 0xFF);
-	commands->result = result;
+	static int result;
+	result = (buf[2] << 8) | (buf[3] & 0xFF);
+	commands->result = &result;
 	commands->result_size = 1;
 	return 0;
 }
 
 int readADC(byte* buf, commandlist* commands, connection_credentials* con){
-	int* result;
+	static int result[MAX_POINTS];
 	int begin = commands->args[0];
 	int end = commands->args[1];
 	int count = end - begin + 1;
-	result = (int*)malloc(sizeof(int) * count * 512);
 	int i;
 	int j = 0;
-	for (i = 0; i < count * 512; i++){
+	for (i = 0; i < count * PAGE_POINTS_SIZE; i++){
 		result[i] = 0;
 	}
 	int k;
@@ -76,7 +75,8 @@ int readADC(byte* buf, commandlist* commands, connection_credentials* con){
 		}
 	}	
 	commands->result = result;
-	commands->result_size = count * 512;
+	commands->result_size = count * PAGE_POINTS_SIZE;
+	return 0;
 }
 
 int command_execution(commandlist* commands, connection_credentials* con){
@@ -119,7 +119,7 @@ int initiate_connection(connection_credentials* cred){
 	// Creating a socket
 	cred->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	struct timeval tv;
-	tv.tv_sec = 1;
+	tv.tv_sec = 2;
 	tv.tv_usec = 0;
 	setsockopt(cred->sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 	if (cred->sockfd < 0) 

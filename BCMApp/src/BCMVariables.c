@@ -97,7 +97,7 @@ int free_list(commandlist** curlist){
 		return 0;
 	}
 	while (seekelem != NULL){
-		free(seekelem->result);
+		seekelem->result = NULL;
 		if (seekelem->args != NULL) free(seekelem->args);
 		prevelem = seekelem;
 		seekelem = seekelem->next;

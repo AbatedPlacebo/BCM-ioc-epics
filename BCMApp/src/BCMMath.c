@@ -9,25 +9,36 @@ double calcQ(int* arr, int size, int wnd1, int wnd2, double QK, int gain, double
 	double integral = 0.0;
 	int i;
 	for (i = wnd1; i < wnd2; i++){
-		integral += fabs(arr[i]); 
+		integral += fabs(arr[i]) * 320 * pow(10,-6); 
 	}
 	return QK * pow(10.0, -gain * gainK / 20.0) * integral;
 
 }
 
-int timeQ(int* arr, int size){
+double timeQ(int* arr, int size, int wnd1, int wnd2, int minmax){
+	if (wnd1 > wnd2){
+		int tmp = wnd1;
+		wnd1 = wnd2;
+		wnd2 = tmp;
+	}
 	// j - num of maxs
-	int i, j;
-	int maxY = 0;
-	int maxT = 0;
-	for (i = 0; (i < (size - 1)); i++){
+	int i;
+	int extY = 0;
+	double extT = 0;
+	for (i = wnd1; (i < wnd2 - 1); i++){
 		 int diff = arr[i+1] - arr[i];
-		 if (diff < 0){
-		 	if (arr[i] > maxY){
-				maxT = i;
-				maxY = arr[i];
+		 if (minmax == 0)
+		 {
+			 if (diff > 0 && arr[i] < extY){
+					extT = i;
+					extY = arr[i];
 			}
+		 }
+		 else if (diff < 0 && arr[i] > extY){
+				extT = i;
+				extY = arr[i];
 		}
 	}
-	return maxT;
+	return extT * 320.0 / 65536.0;
+
 }
