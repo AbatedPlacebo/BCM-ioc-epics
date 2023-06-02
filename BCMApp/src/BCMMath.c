@@ -12,12 +12,11 @@ double calcQ(int* arr, int size, int wnd1, int wnd2, double QK, int gain, double
 		integral += fabs(arr[i]) * 320 * pow(10,-6); 
 	}
 	return QK * pow(10.0, -gain * gainK / 20.0) * integral;
-
 }
 
 double timeQ(int* arr, int size, int wnd1, int wnd2, int minmax){
-	gsl_interp_accel *acc = gsl_interp_accel_alloc();
-	gsl_spline *spline = gsl_spline_alloc(gsl_interp_cspline, 2);
+//	gsl_interp_accel *acc = gsl_interp_accel_alloc();
+//	gsl_spline *spline = gsl_spline_alloc(gsl_interp_cspline, 2);
 	if (wnd1 > wnd2){
 		int tmp = wnd1;
 		wnd1 = wnd2;
@@ -42,5 +41,4 @@ double timeQ(int* arr, int size, int wnd1, int wnd2, int minmax){
 		}
 	}
 	return extT * 320.0 / 65536.0;
-
 }
