@@ -6,6 +6,8 @@ include $(TOP)/configure/CONFIG
 USR_INCLUDES += -I$(TOP)/inc
 USR_INCLUDES += -I$(TOP)/genlib
 USR_INCLUDES += -I$(TOP)/src
+USR_SYS_LIBS += gslcblas
+USR_SYS_LIBS += gsl
 VPATH += $(TOP)/src
 USR_LDFLAGS += -rdynamic
 

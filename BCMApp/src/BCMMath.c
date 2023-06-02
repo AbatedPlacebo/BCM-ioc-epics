@@ -16,6 +16,8 @@ double calcQ(int* arr, int size, int wnd1, int wnd2, double QK, int gain, double
 }
 
 double timeQ(int* arr, int size, int wnd1, int wnd2, int minmax){
+	gsl_interp_accel *acc = gsl_interp_accel_alloc();
+	gsl_spline *spline = gsl_spline_alloc(gsl_interp_cspline, 2);
 	if (wnd1 > wnd2){
 		int tmp = wnd1;
 		wnd1 = wnd2;
