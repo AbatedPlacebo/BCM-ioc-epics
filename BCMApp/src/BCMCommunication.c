@@ -119,7 +119,7 @@ int initiate_connection(connection_credentials* cred){
 	// Creating a socket
 	cred->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	struct timeval tv;
-	tv.tv_sec = 1;
+	tv.tv_sec = 2;
 	tv.tv_usec = 0;
 	setsockopt(cred->sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 	if (cred->sockfd < 0) 

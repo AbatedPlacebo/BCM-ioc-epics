@@ -27,10 +27,12 @@
   decl_zone##_BIN(remote_start, DATA_EVENT, 0) \
   decl_zone##_VAR(int,wnd1,0,65535,DATA_EVENT,0) \
   decl_zone##_VAR(int,wnd2,0,65535,DATA_EVENT,0) \
+  decl_zone##_BIN(minmax, DATA_EVENT, 0) \
   decl_zone##_VAR_RO(double,Q,0,100000,DATA_EVENT) \
   decl_zone##_VAR(double,QK,0,100000,DATA_EVENT,0) \
+  decl_zone##_VAR(int,wndBeg,0,65536,DATA_EVENT,0) \
   decl_zone##_VAR(int,wndLen,0,65536,DATA_EVENT,65536) \
-  decl_zone##_VAR_RO(int,timeQ,0,65536,DATA_EVENT) \
+  decl_zone##_VAR_RO(double,timeQ,0,320,DATA_EVENT) \
 
 #include "gen_h.h"
 
