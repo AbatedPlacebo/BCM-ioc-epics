@@ -72,6 +72,10 @@ extern int debug_level_ioc;
 
 /* PLACE_EXTRA_INSERT */
 
+#define EXTRA_timeQ field(PREC,3) field(EGU,"us")
+#define EXTRA_Q field(PREC,3) field(EGU,"kQ")
+#define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
+
 #include"gen_db.h"
 #elif defined(GEN_DBD)
 /****************************************************************************
