@@ -72,9 +72,9 @@ extern int debug_level_ioc;
 
 /* PLACE_EXTRA_INSERT */
 
-#define EXTRA_timeQ field(PREC,3) field(EGU,"us")
-#define EXTRA_Q field(PREC,3) field(EGU,"kQ")
-#define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
+//#define EXTRA_timeQ field(PREC,3) field(EGU,"us")
+//#define EXTRA_Q field(PREC,3) field(EGU,"nQ")
+//#define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
 
 #include"gen_db.h"
 #elif defined(GEN_DBD)
@@ -149,8 +149,9 @@ static void BCM_run(void* arg)
 {
 	int count = 0;
 	ioc_work = 1;
+	//BCM.gainK = 2;
+	//BCM.QK = 1;
 	D(0, ("TRACE\n"));
-
 	while(ioc_work) {
 		if(	epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
 			D(3,("произошло обновление pv для записи или мониторинга\n"));
@@ -193,6 +194,11 @@ static void BCM_run(void* arg)
 			free_list(&buf);
 			post_event(K2_EVENT);
 		}
+//		if(	epicsEventTryWait(BCM.update_stats_event) == epicsEventWaitOK) {
+//			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
+//			BCM.timeQ = timeQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
+//			BCM.update_stats = 0;
+//		}
 		if(	epicsEventTryWait(BCM.wndBeg_event) == epicsEventWaitOK ||
 			epicsEventTryWait(BCM.wndLen_event) == epicsEventWaitOK) {
 				if (BCM.wndBeg > BCM.wndLen){

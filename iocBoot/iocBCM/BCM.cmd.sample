@@ -5,6 +5,9 @@
 
 < envPaths
 
+epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES","4255000")
+epicsEnvSet("PREFIX","V:")
+epicsEnvSet("SETTING","BCM")
 epicsEnvSet("IOCSH_PS1","BCM> ")
 
 cd ${TOP}
@@ -12,6 +15,9 @@ cd ${TOP}
 ## Register all support components
 dbLoadDatabase "dbd/BCM.dbd"
 BCM_registerRecordDeviceDriver pdbbase
+
+save_restoreSet_status_prefix("${PREFIX}")
+dbLoadRecords("db/save_restoreStatus.db","P=${PREFIX}")
 
 ## Load record instances
 #dbLoadTemplate "db/userHost.substitutions"
@@ -29,8 +35,15 @@ dbLoadRecords "db/BCMProc.db", "P=V:"
 ### ACF_SET_FILENAME_PLACEHOLDER
 
 BCM_init 1
+asSetFilename("${TOP}/${FILE_ACF}.acf")
 cd ${TOP}/iocBoot/${IOC}
 iocInit
+
+
+makeAutosaveFileFromDbInfo("${SETTING}.req","autosaveFields")
+create_monitor_set("${SETTING}.req",5,"P=${PREFIX}")
+epicsThreadSleep 0.5
+fdbrestoreX("${SETTING}.sav")
 
 ## Start any sequence programs
 #seq sncExample, "user=bhHost"
