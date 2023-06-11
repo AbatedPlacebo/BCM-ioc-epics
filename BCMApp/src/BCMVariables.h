@@ -22,7 +22,7 @@
 
 #define MAX_POINT_VALUE 2048
 #define MIN_POINT_VALUE -2048
-#define MAX_POINTS PAGE_POINTS_SIZE * (MAX_PAGE + 1)
+#define MAX_POINTS (PAGE_POINTS_SIZE * (MAX_PAGE + 1))
 
 #define ACK_MESSAGE_SIZE 4
 
@@ -30,7 +30,7 @@
 
 #define MAX_BYTE_BUFFER MAX_RECV_MESSAGE_SIZE * (MAX_PAGE + 1)
 
-#define WAVEFORM_LENGTH_TIME (320.0 / MAX_POINTS) 
+#define WAVEFORM_LENGTH_TIME (320.0 / (double)MAX_POINTS) 
 
 #define TRACE(x) do { if (debug_mode) dbg_printf x; } while (0)
 

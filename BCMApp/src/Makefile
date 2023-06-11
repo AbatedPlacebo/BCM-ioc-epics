@@ -7,10 +7,10 @@ USR_INCLUDES += -I$(TOP)/inc
 USR_INCLUDES += -I$(TOP)/genlib
 USR_INCLUDES += -I$(TOP)/src
 USR_SYS_LIBS += gsl
+USR_SYS_LIBS += m
 USR_SYS_LIBS += gslcblas
 VPATH += $(TOP)/src
 USR_LDFLAGS += -rdynamic
-
 #=============================
 # Build the IOC support library
 

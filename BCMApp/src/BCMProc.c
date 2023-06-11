@@ -72,9 +72,9 @@ extern int debug_level_ioc;
 
 /* PLACE_EXTRA_INSERT */
 
-//#define EXTRA_timeQ field(PREC,3) field(EGU,"us")
-//#define EXTRA_Q field(PREC,3) field(EGU,"nQ")
-//#define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
+#define EXTRA_timeQ field(PREC,3) field(EGU,"us")
+#define EXTRA_Q field(PREC,3) field(EGU,"nQ")
+#define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
 
 #include"gen_db.h"
 #elif defined(GEN_DBD)
@@ -116,6 +116,24 @@ connection_credentials con;
 
 static void BCM_run(void* arg);
 
+// WAIT
+#define WAIT_PREF(name) BCM.name
+
+static int bcm_wait_autosave(double timeout)
+{
+	epicsTimeStamp t0;
+	epicsTimeStamp t1;
+	double to;
+	int success_count = 0;
+	int fail_count = 0;
+	epicsTimeGetCurrent(&t0);
+	DECL_BCM(WAIT);
+	epicsTimeGetCurrent (&t1);
+	D(0, ("success wait %i, fail wait %i, saverestor time: %g\n",
+				success_count, fail_count, epicsTimeDiffInSeconds( &t1, &t0)));
+	return 0;
+}
+
 static void BCM_init(int i)
 {
 	D(0, ("TRACE\n"));
@@ -149,8 +167,16 @@ static void BCM_run(void* arg)
 {
 	int count = 0;
 	ioc_work = 1;
-	//BCM.gainK = 2;
-	//BCM.QK = 1;
+	bcm_wait_autosave(5.0);
+	BCM.gainK = 2;
+	BCM.QK = 1;
+	double val = 0;
+	int i;
+	for (i = 0; i < MAX_POINTS; i++){
+		BCM.arrXt[i] = val; 
+		val += WAVEFORM_LENGTH_TIME;
+	}
+	BCM.arrXt_ne = MAX_POINTS;
 	D(0, ("TRACE\n"));
 	while(ioc_work) {
 		if(	epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
@@ -171,7 +197,6 @@ static void BCM_run(void* arg)
 					BCM.connected = 1;
 					commandlist* ptr = list;
 					while (ptr != NULL){
-						D(0,("%d\n", command_execution(ptr, &con)));
 						ptr = ptr->next;
 					}
 				}
@@ -194,15 +219,15 @@ static void BCM_run(void* arg)
 			free_list(&buf);
 			post_event(K2_EVENT);
 		}
-//		if(	epicsEventTryWait(BCM.update_stats_event) == epicsEventWaitOK) {
-//			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
-//			BCM.timeQ = timeQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
-//			BCM.update_stats = 0;
-//		}
+		if(	epicsEventTryWait(BCM.update_stats_event) == epicsEventWaitOK) {
+			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
+			BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
+			BCM.update_stats = 0;
+		}
 		if(	epicsEventTryWait(BCM.wndBeg_event) == epicsEventWaitOK ||
 			epicsEventTryWait(BCM.wndLen_event) == epicsEventWaitOK) {
 				if (BCM.wndBeg > BCM.wndLen){
-					int temp = BCM.wndBeg;
+					double temp = BCM.wndBeg;
 					BCM.wndBeg = BCM.wndLen;
 					BCM.wndLen = temp;
 				}
@@ -228,7 +253,7 @@ static void BCM_run(void* arg)
 						if (BCM.QK == 0)
 							BCM.QK = 1;
 						BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
-						BCM.timeQ = timeQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
+						BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
 						break;
 					default:
 						break;
@@ -236,6 +261,7 @@ static void BCM_run(void* arg)
 				ptr = ptr->next;
 			}
 			post_event(DATA_EVENT);
+			post_event(K2_EVENT);
 		}
 		//if(count>10)
 		//	ioc_work = 0;
