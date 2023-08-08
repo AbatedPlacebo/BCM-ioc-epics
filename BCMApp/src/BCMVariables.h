@@ -2,6 +2,8 @@
 #ifndef BCM_VARIABLES_H
 #define BCM_VARIABLES_H
 
+#include "BCMConstants.h"
+
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -51,36 +53,6 @@ enum commands {
 	READ_BUFFER,
 	START_GENERATOR,
 	COUNT_RESET 
-};
-
-enum inputcommands_enum {
-	WRITE_REGISTER_COMM = 0x00,
-	START_CYCLE_COMM = 0x03,
-	READ_REGISTER_COMM = 0x04,
-	STOP_CYCLE_COMM = 0x05,
-	READ_BUFFER_COMM = 0x08,
-	START_GENERATOR_COMM = 0x06,
-	COUNT_RESET_COMM = 0x07 
-};
-
-enum packetlengths_enum{
-	WRITE_REGISTER_RECVLEN = 0,
-	START_CYCLE_RECVLEN = 2,
-	READ_REGISTER_RECVLEN = 4,
-	STOP_CYCLE_RECVLEN = 0,
-	READ_BUFFER_RECVLEN = 1034,
-	START_GENERATOR_RECVLEN = 2,
-	COUNT_RESET_RECVLEN = 0 
-};
-
-enum command_args_num_enum {
-	WRITE_REGISTER_ARGS = 2,
-	START_CYCLE_ARGS = 0,
-	READ_REGISTER_ARGS = 1,
-	STOP_CYCLE_ARGS = 0,
-	READ_BUFFER_ARGS = 2,
-	START_GENERATOR_ARGS = 0,
-	COUNT_RESET_ARGS = 0 
 };
 
 typedef struct _commandlist {
