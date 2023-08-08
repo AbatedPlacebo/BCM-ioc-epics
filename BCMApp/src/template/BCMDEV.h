@@ -1,21 +1,24 @@
 #ifndef BCMDEV_H
-#define  BCMDEV_H
-
+#define BCMDEV_H
 #include <cstdint>
 
 struct BCMDEV {
+  enum CONSTANTS {
+    EXTERNAL_START = 0b00,
+    INTERNAL_START = 0b10,
+    ACK_PACKET = 0x10,
+    ACK_LENGTH = 4,
+    CONF_PACKET = 0x11,
+  };
   enum CMD
   {
-    WRITE_REGISTER,
-    START_CYCLE,
-    READ_REGISTER,
-    STOP_CYCLE,
-    READ_BUFFER,
-    START_GENERATOR,
-    COUNT_RESET 
+		CMD_WRREG     =  0x00,
+		CMD_START     =  0x03,
+		CMD_STOP      =  0x05,
   };
   enum REG{
     STATUS,
+    R0,
     R1,
     R2,
     R3,
@@ -43,15 +46,6 @@ struct BCMDEV {
   typedef uint32_t REG_t;
   typedef uint32_t REG_CACHE_MASK_t;
   static const REG_CACHE_MASK_t REG_CACHE_MASK = (1 << REG::STATUS) | (1 << REG::R1);
-
-struct R0{
-  static const unsigned int VAL = 0;
-  enum {
-    ENABLE = 0b10,
-    DISABLE = 0b00,
-  };
-} R0;
-
 };
 
 #endif
