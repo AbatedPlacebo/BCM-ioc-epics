@@ -81,7 +81,7 @@ static int SetSockTO(SOCKET s, int to_msec)
   if (Error != NO_ERROR) {
     assert(Error != NO_ERROR);
     D(0, ("Error SO_SNDTIMEO error=%i s=%i to=%i\n", Error, s, to_msec));
-    }
+  }
 #ifdef __TARGET_WIN32__
   timeout = to_msec;
 #elif defined(__TARGET_LINUX__)
@@ -104,8 +104,8 @@ int UDPLIB::connect(const char *peer, int port)
 
   //unet_regs(con->regs);
 
- CHKTRUE((host = gethostbyname(peer)) != NULL);
- CHK(sock = ::socket(AF_INET, SOCK_DGRAM, 0));
+  CHKTRUE((host = gethostbyname(peer)) != NULL);
+  CHK(sock = ::socket(AF_INET, SOCK_DGRAM, 0));
 
   memset(&serv_addr, 0, sizeof(serv_addr));
   memcpy(&serv_addr.sin_addr, host->h_addr, host->h_length);

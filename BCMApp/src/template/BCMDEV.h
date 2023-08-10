@@ -1,20 +1,20 @@
 #ifndef BCMDEV_H
 #define BCMDEV_H
-#include <cstdint>
+#include <cstdint> 
 
 struct BCMDEV {
   enum CONSTANTS {
-    EXTERNAL_START = 0b00,
-    INTERNAL_START = 0b10,
-    ACK_PACKET = 0x10,
+    ACK_PACKET = 0PROTOLOW::x10,
     ACK_LENGTH = 4,
     CONF_PACKET = 0x11,
   };
   enum CMD
   {
-		CMD_WRREG     =  0x00,
-		CMD_START     =  0x03,
-		CMD_STOP      =  0x05,
+    CMD_WRREG = 0x00,
+    CMD_START = 0x03,
+    CMD_RDREG = 0x04,
+    CMD_STOP  = 0x05,
+    CMD_RDADC = 0x08,
   };
   enum REG{
     STATUS,
