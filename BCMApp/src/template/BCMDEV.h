@@ -4,7 +4,7 @@
 
 struct BCMDEV {
   enum CONSTANTS {
-    ACK_PACKET = 0PROTOLOW::x10,
+    ACK_PACKET = 0x10,
     ACK_LENGTH = 4,
     CONF_PACKET = 0x11,
   };

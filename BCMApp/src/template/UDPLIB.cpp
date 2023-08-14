@@ -1,6 +1,6 @@
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include<assert.h>
+#include <assert.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>

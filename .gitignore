@@ -11,5 +11,6 @@ envPaths
 *.sav
 *.sav?
 *.vim
+.*swp
 /BCMApp/src/template/main
 /BCMApp/src/template/tags

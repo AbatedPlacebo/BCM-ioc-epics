@@ -20,6 +20,8 @@ template <typename DEV, typename PROTOLOW>
 int PROTOHI<DEV, PROTOLOW>::set_start_mode(bool mode){
   unsigned int value = mode << 1;
   MED.wr_reg(DEV::REG::R0, value); 
+  MED.rd_reg(DEV::REG::R0, &value); 
+  D(2, ("%d", value));
   return 0;
 }
 
