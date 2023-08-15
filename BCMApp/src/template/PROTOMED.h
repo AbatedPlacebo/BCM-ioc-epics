@@ -29,7 +29,7 @@ REP:
       D(3,("write_reg %i %i(%04x)\n", regn, param, param));
       CHK(err = PROTOLOW::send_com(DEV::CMD::CMD_WRREG, regn, param)); 
       for (cnt = 1; cnt > 0; --cnt) { 
-      CHK(err = PROTOLOW::recv_to(ack, sizeof(ack), 10/*, 0*/));
+        CHK(err = PROTOLOW::recv_to(ack, sizeof(ack), 10/*, 0*/));
         if (err == 0 && rep > 0) {
           D(2,("repeat %i PROTOMED<>::write_reg\n", rep));
           --rep;
@@ -164,7 +164,7 @@ REP:
         if (err == 0 && rep > 0) {
           D(2,("repeat %i PROTOMED<>::read_ADC %s\n", rep, __FUNCTION__));
           --rep;
-            goto REP;
+          goto REP;
         }
         if (err == 2 && ack[0] == 0x11) {
           ++cnt;
@@ -198,6 +198,39 @@ REP:
       }
       return err;
 CHK_ERR:
+      if (err > 0)
+        CUNET_PRINT(2, "ack", ack, err);
+      return -1;
+    }
+
+    int init_generator() {
+      int err = -1;
+      uint8_t ack[4];
+      int cnt;
+      int rep = 1;
+REP:
+      CHK(err = PROTOLOW::send_com(DEV::CMD_STARTGEN, 0, 0));
+      for (cnt = 1; cnt > 0; --cnt) {
+        CHK(err = PROTOLOW::recv_to(ack, sizeof(ack), 10/*, 0*/));
+        if (err == 0 && rep > 0) {
+          D(2,("repeat %i %s\n", rep, __FUNCTION__));
+          --rep;
+          goto REP;
+        }
+        if (err == 2 && ack[0] == 0x11) {
+          ++cnt;
+          continue;
+        }
+        CHKTRUE(err == sizeof(ack));
+        CHKTRUE(ack[0] == 0x10);
+        CHKTRUE(ack[1] == DEV::CMD_STARTGEN);
+        CHKTRUE(ack[2] == 0);
+        CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+      }
+      PROTOLOW::conf();
+      return err;
+CHK_ERR:
+      PROTOLOW::conf();
       if (err > 0)
         CUNET_PRINT(2, "ack", ack, err);
       return -1;
