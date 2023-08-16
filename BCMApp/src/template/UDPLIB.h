@@ -17,7 +17,7 @@ class UDPLIB {
     int send(void *buf, int buf_size);
     int recv(void *buf, int buf_size);
     // middle level
-    int connect(const char *peer, int port);
+    virtual int connect(const char *peer, int port);
     int disconnect();
     int is_connected() const;
     int socket();

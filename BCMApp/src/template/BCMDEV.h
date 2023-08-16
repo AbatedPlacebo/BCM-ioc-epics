@@ -6,6 +6,7 @@ struct BCMDEV {
   enum CONSTANTS {
     ACK_PACKET = 0x10,
     ACK_LENGTH = 4,
+    CONF_LENGTH = 2,
     CONF_PACKET = 0x11,
   };
   enum CMD

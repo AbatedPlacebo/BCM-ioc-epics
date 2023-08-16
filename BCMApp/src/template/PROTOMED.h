@@ -210,16 +210,17 @@ CHK_ERR:
       int rep = 1;
 REP:
       CHK(err = PROTOLOW::send_com(DEV::CMD_STARTGEN, 0, 0));
-      for (cnt = 1; cnt > 0; --cnt) {
-        CHK(err = PROTOLOW::recv_to(ack, sizeof(ack), 10/*, 0*/));
+      for (cnt = 2; cnt > 0; --cnt) {
+        CHK(err = PROTOLOW::recv_to(ack, sizeof(ack), 2000/*, 0*/));
         if (err == 0 && rep > 0) {
           D(2,("repeat %i %s\n", rep, __FUNCTION__));
           --rep;
           goto REP;
         }
         if (err == 2 && ack[0] == 0x11) {
-          ++cnt;
-          continue;
+          CHKTRUE(ack[0] == 0x11);
+          CHKTRUE(ack[1] == DEV::CMD_STARTGEN);
+          break;
         }
         CHKTRUE(err == sizeof(ack));
         CHKTRUE(ack[0] == 0x10);
@@ -235,7 +236,40 @@ CHK_ERR:
         CUNET_PRINT(2, "ack", ack, err);
       return -1;
     }
-};
 
+
+    int reset_measurement_cnt() {
+      int err = -1;
+      uint8_t ack[4];
+      int cnt;
+      int rep = 1;
+REP:
+      CHK(err = PROTOLOW::send_com(DEV::CMD_RESETCNT, 0, 0));
+      for (cnt = 1; cnt > 0; --cnt) {
+        CHK(err = PROTOLOW::recv_to(ack, sizeof(ack), 10/*, 0*/));
+        if (err == 0 && rep > 0) {
+          D(2,("repeat %i %s\n", rep, __FUNCTION__));
+          --rep;
+          goto REP;
+        }
+        if (err == 2 && ack[0] == 0x11) {
+          ++cnt;
+          continue;
+        }
+        CHKTRUE(err == sizeof(ack));
+        CHKTRUE(ack[0] == 0x10);
+        CHKTRUE(ack[1] == DEV::CMD_RESETCNT);
+        CHKTRUE(ack[2] == 0);
+        CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+      }
+      PROTOLOW::conf();
+      return err;
+CHK_ERR:
+      PROTOLOW::conf();
+      if (err > 0)
+        CUNET_PRINT(2, "ack", ack, err);
+      return -1;
+    }
+};
 
 #endif
