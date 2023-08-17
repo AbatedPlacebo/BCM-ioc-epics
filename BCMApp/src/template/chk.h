@@ -28,6 +28,7 @@
 #define CHKTRUEMESG(val,fmto) do{ if(!(val)) { D(2,("FALSE: %s",CHK_STR(val))); D_PRINTF fmto; goto CHK_ERR; } }while(0)
 #define WARNTRUE(val) do{ if(!(val))  {D(2,("%s\n",CHK_STR(val)));                     } }while(0)
 #ifndef D_FILE_NAME
+
 static const char* D_FILE_NAME(const char* file)
 {
 	const char* name = file;

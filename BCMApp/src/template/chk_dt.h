@@ -8,11 +8,12 @@
 
 #ifndef D_PRINTF
 #define D_PRINTF printf
-#include<stdio.h>
+#include <stdio.h>
 #endif
 
 #ifndef D_DATATIME
 #define D_DATATIME D_DATATIME_F();
+
 static void D_DATATIME_F()
 {
 	char buf[40];

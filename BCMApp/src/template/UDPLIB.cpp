@@ -37,7 +37,8 @@ int UDPLIB::close()
 
 int UDPLIB::disconnect()
 {
-  close();
+  if (is_connected())
+    close();
   return 0;
 }
 
