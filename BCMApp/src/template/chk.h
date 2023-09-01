@@ -7,7 +7,7 @@
 
 #ifndef D_PRINTF
 #define D_PRINTF printf
-#include<stdio.h>
+#include <stdio.h>
 #endif
 
 #define Dif(level) if(level <= debug_level)

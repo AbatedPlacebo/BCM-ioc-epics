@@ -1,0 +1,25 @@
+all: main
+
+main.o: main.o.d
+PROTOBCM.o: PROTOBCM.o.d
+
+main: main.o PROTOBCM.o
+		g++ $^ -o $@
+
+%.o: %.cpp Makefile
+		g++ -c -o $@  $<
+
+%.o: %.h Makefile
+		g++ -c -o $@  $<
+
+%.o.d: %.cpp Makefile
+		g++ -MM -MT $(@:.d=) -MT $(@)  $< > $@
+
+%.o.d: %.h Makefile
+		g++ -MM -MT $(@:.d=) -MT $(@)  $< > $@
+
+-include *.d
+
+clean:
+		rm -f *.o *.o.d
+		rm -f main tags

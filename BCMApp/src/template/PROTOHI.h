@@ -1,10 +1,10 @@
-#include "PROTOMED.h"
+#include "PROTOBCM.h"
 
-template <typename DEV, typename PROTOLOW> class PROTOHI {
+template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
   private:
     const char* hostname;
     int port;
-    PROTOMED<DEV, PROTOLOW> MED;
+    PROTOBCM<DEV> connection;
   public:
     PROTOHI();
     int get_ADC_buffer(float*, int);
@@ -16,11 +16,11 @@ template <typename DEV, typename PROTOLOW> class PROTOHI {
     ~PROTOHI();
 };
 
-template <typename DEV, typename PROTOLOW>
-PROTOHI<DEV, PROTOLOW>::PROTOHI() { }
+template <typename DEV, template<typename> typename PROTOCOL>
+PROTOHI<DEV, PROTOCOL>::PROTOHI() { }
 
-  template <typename DEV, typename PROTOLOW>
-int PROTOHI<DEV, PROTOLOW>::start_generator() 
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::start_generator() 
 { 
   int err = -1;
   int frequency = 0;
@@ -29,8 +29,8 @@ int PROTOHI<DEV, PROTOLOW>::start_generator()
   for (retries = 1; retries > 0; retries--)
   {
     D(2, ("Starting frequency generator...\n"));
-    CHK(err = MED.init_generator());
-    CHK(err = MED.rd_reg(DEV::REG::R8, &R8_code_value));
+    CHK(err = connection.init_generator());
+    CHK(err = connection.rd_reg(DEV::REG::R8, &R8_code_value));
     frequency = (50 * R8_code_value / 8192);
     D(2, ("%d\n", frequency));
     if (frequency == 0)
@@ -43,13 +43,13 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV, typename PROTOLOW>
-PROTOHI<DEV, PROTOLOW>::~PROTOHI(){
+template <typename DEV, template<typename> typename PROTOCOL>
+PROTOHI<DEV, PROTOCOL>::~PROTOHI(){
   disconnect();
 }
 
-  template <typename DEV, typename PROTOLOW>
-int PROTOHI<DEV, PROTOLOW>::connect(const char* _hostname, int _port)
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::connect(const char* _hostname, int _port)
 {
   hostname = _hostname;
   port = _port;
@@ -59,11 +59,11 @@ int PROTOHI<DEV, PROTOLOW>::connect(const char* _hostname, int _port)
   unsigned int R8_code_value = 0;
   CHKTRUE(hostname != nullptr);
   CHKTRUE(port != -1);
-  CHK(err = MED.connect(hostname, port));
+  CHK(err = connection.connect(hostname, port));
   D(2, ("Connection successful\n"));
   for (retries = 2; retries > 0; retries--)
   {
-    CHK(err = MED.rd_reg(DEV::REG::R8, &R8_code_value));
+    CHK(err = connection.rd_reg(DEV::REG::R8, &R8_code_value));
     frequency = (50 * R8_code_value / 8192);
     D(2, ("Register 8 frequency is: %d\n", frequency));
     if (frequency < 158 || frequency > 161) 
@@ -78,11 +78,11 @@ CHK_ERR:
   return err;
 }
 
-  template <typename DEV, typename PROTOLOW>
-int PROTOHI<DEV, PROTOLOW>::disconnect()
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::disconnect()
 {
   int err = -1;
-  CHK(err = MED.disconnect());
+  CHK(err = connection.disconnect());
   return err;
 CHK_ERR:
   D(2, ("Disconnection failed\n"));
@@ -90,28 +90,28 @@ CHK_ERR:
 }
 
 
-template <typename DEV, typename PROTOLOW>
-int PROTOHI<DEV, PROTOLOW>::set_start_mode(bool mode){
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::set_start_mode(bool mode){
   int err = -1;
   unsigned int value = mode << 1;
-  CHK(err = MED.wrrd_reg(DEV::REG::R0, &value)); 
+  CHK(err = connection.wrrd_reg(DEV::REG::R0, &value)); 
   D(2, ("Mode start is set to: %d\n", value));
   return err;
 CHK_ERR:
   return err;
 }
 
-template <typename DEV, typename PROTOLOW>
-int PROTOHI<DEV, PROTOLOW>::get_ADC_buffer(float* buffer, int size){
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::get_ADC_buffer(float* buffer, int size){
   return 0;
 }
 
-  template <typename DEV, typename PROTOLOW>
-int PROTOHI<DEV, PROTOLOW>::set_K_gain(unsigned int value)
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::set_K_gain(unsigned int value)
 {
   int err = -1;
   unsigned int checking_value;
-  CHK(err = MED.wrrd_reg(DEV::REG::R2, &value));
+  CHK(err = connection.wrrd_reg(DEV::REG::R2, &value));
   D(2, ("K_gain is set to: %d\n", value));
 
 CHK_ERR:

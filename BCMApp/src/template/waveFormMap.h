@@ -1,10 +1,10 @@
 #ifndef WAVEFORMMAP_H
 #define WAVEFORMMAP_H
 
-#include<cstddef>
+#include <cstddef>
 
 
-template<typename T, int DATA_SIZE>
+template <typename T, int DATA_SIZE>
 class wave_form_map {
 		T* storage;
 		int* ne;
