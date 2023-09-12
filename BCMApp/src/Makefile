@@ -58,10 +58,7 @@ BCM_SRCS += BCM_registerRecordDeviceDriver.cpp
 BCM_SRCS_DEFAULT += iocMain.cpp
 BCM_SRCS_vxWorks += -nil-
 
-BCM_SRCS += BCMProc.c
-BCM_SRCS += BCMCommunication.c
-BCM_SRCS += BCMVariables.c
-BCM_SRCS += BCMMath.c
+BCM_SRCS += BCMProc.cpp
 
 # Add support from base/src/vxWorks if needed
 #BCM_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
@@ -102,7 +99,7 @@ include $(TOP)/configure/RULES
 
 include $(TOP)/genlib/RULES_gen_dbd
 
-BCMProc.dbd: BCMProc.c
+BCMProc.dbd: BCMProc.cpp
 -include BCMProc.dbd.dd
 
 # v3.14

@@ -36,7 +36,7 @@ include $(TOP)/genlib/RULES_gen_db
 VPATH += ../../src
 VPATH += ..
 
-$(COMMON_DIR)/BCMProc.db: BCMProc.c BCM.h ../Makefile $(GEN_DEPEND) 
+$(COMMON_DIR)/BCMProc.db: BCMProc.cpp BCM.h ../Makefile $(GEN_DEPEND) 
 BCMProc.db.d:
 
 $(COMMON_DIR)/BCM.2.db: BCM.2.sh $(GEN_DEPEND)

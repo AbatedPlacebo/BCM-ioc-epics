@@ -26,10 +26,13 @@ class PROTOBCM {
     int is_connected() const;
     int socket();
     int send_com(int instr, int nreg, int param1, int param2 = 0);
-    int ack_to(int cmd, int regn, int to_ms = 10, int count = 1, int repeat = 1);
-    int recv_to(void *_buf, int _size, int _to_ms, const int unet_flag = 0);
+    int ack_to(int cmd, int regn, 
+        int to_ms = 10, int count = 1, int repeat = 1);
+    int recv_to(void *_buf, int _size, int _to_ms, 
+        const int unet_flag = 0);
     int ready_udp(int timeout_ms);
-    static int cunet_print(int _debug_level, const char* str, uint8_t* buf, int size);
+    static int cunet_print(int _debug_level, 
+        const char* str, uint8_t* buf, int size);
     int close();
   public:
     PROTOBCM(); 
@@ -40,7 +43,8 @@ class PROTOBCM {
     int rd_reg(unsigned int regn, unsigned int *param); 
     int start(); 
     int stop();
-    int rd_ADC(unsigned int start_page, unsigned int end_page, int* arr, int* size);
+    int rd_ADC(unsigned int start_page,
+        unsigned int end_page, int* arr, int* size);
     int init_generator(); 
     int reset_measurement_cnt();
     int wrrd_reg(unsigned int regn, unsigned int *param);
@@ -261,7 +265,8 @@ CHK_ERR:
 }
 
 template <typename DEV>
-int PROTOBCM<DEV>::recv_to(void *_buf, int _size, int _to_ms, const int unet_flag)
+int PROTOBCM<DEV>::recv_to(void *_buf, int _size, 
+    int _to_ms, const int unet_flag)
 { ;
   int err = -1;
   if(unet_flag == 0)
@@ -338,7 +343,8 @@ REP:
   return err;
 CHK_ERR:
   if (err > 0)
-    D(2,("err=%i ack=%02x%02x%02x%02x\n", err, ack[0], ack[1], ack[2], ack[3]));
+    D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+          err, ack[0], ack[1], ack[2], ack[3]));
   return -1;
 }
 
@@ -374,14 +380,16 @@ REP:
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", err, ack[0], ack[1], ack[2], ack[3]));
+        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+              err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf4) {
       int pack = 1;
       WARNTRUE(ack[0] == 0xF4 || (pack = 0));
       WARNTRUE(ack[1] == regn || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", err, ack[0], ack[1], ack[2], ack[3]));
+        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+              err, ack[0], ack[1], ack[2], ack[3]));
       *param = (((unsigned int) ack[2]) << 8) | ack[3];
       D(3,("val %i(%04x)\n", *param, *param));
     }
@@ -445,7 +453,8 @@ CHK_ERR:
 }
 
 template <typename DEV>
-int PROTOBCM<DEV>::rd_ADC(unsigned int start_page, unsigned int end_page, int* arr, int* size){ 
+int PROTOBCM<DEV>::rd_ADC(unsigned int start_page, 
+    unsigned int end_page, int* arr, int* size){ 
   int err = -1;
   uint8_t ack[1034];
   int cnt;
@@ -475,14 +484,16 @@ REP:
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", err, ack[0], ack[1], ack[2], ack[3]));
+        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+              err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf1) {
       int pack = 1;
       WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
       WARNTRUE(ack[1] == 0x08                     || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", err, ack[0], ack[1], ack[2], ack[3]));
+        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+              err, ack[0], ack[1], ack[2], ack[3]));
       int i;
       for (i = 10; i < 1034; i++){
         arr[i - 10 + (page * 1034)] = (ack[i] << 8) | (ack[i+1]);
@@ -543,7 +554,8 @@ REP:
   for (cnt = 2; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i PROTOBCM<>::write_read_reg %s\n", rep, __FUNCTION__));
+      D(2,("repeat %i PROTOBCM<>::write_read_reg %s\n", 
+            rep, __FUNCTION__));
       --rep;
       goto REP;
     }
@@ -560,14 +572,16 @@ REP:
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", err, ack[0], ack[1], ack[2], ack[3]));
+        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+              err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf4) {
       int pack = 1;
       WARNTRUE(ack[0] == 0xF4                     || (pack = 0));
       WARNTRUE(ack[1] == regn                     || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", err, ack[0], ack[1], ack[2], ack[3]));
+        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+              err, ack[0], ack[1], ack[2], ack[3]));
 
       check_value = (((unsigned int) ack[2]) << 8) | ack[3];
       CHKTRUE(check_value == *param);

@@ -11,10 +11,6 @@
 //#include <sys/inotify.h>
 //#include <sys/stat.h>
 
-// Driver library
-#include "BCMCommunication.h"
-#include "BCMMath.h"
-#include "BCMVariables.h"
 
 #include <dbDefs.h>
 #include <registryFunction.h>
@@ -34,8 +30,16 @@
 #include"BCM.h"
 #include"chk_dt.h"
 #include"chk.h"
-#define debug_level debug_level_ioc
+
+// Driver library
+#include "PROTOHI.h"
+#include "BCMDEV.h"
+#include "PROTOBCM.h"
+
+//#define debug_level debug_level_ioc
 extern int debug_level_ioc;
+
+int debug_level = 2;
 
 #define ALIAS(name) name
 
@@ -109,10 +113,8 @@ extern int debug_level_ioc;
 #include"gen_init.h"
 
 TBCM BCM;
-commandlist* list;
-commandlist* buffer;
-commandlist* buf;
-connection_credentials con;
+
+PROTOHI<BCMDEV, PROTOBCM> Device;
 
 static void BCM_run(void* arg);
 
@@ -172,11 +174,11 @@ static void BCM_run(void* arg)
 	BCM.QK = 1;
 	double val = 0;
 	int i;
-	for (i = 0; i < MAX_POINTS; i++){
+	for (i = 0; i < BCM.arr_ne; i++){
 		BCM.arrXt[i] = val; 
-		val += WAVEFORM_LENGTH_TIME;
+	//	val += BCMWAVEFORM_LENGTH_TIME;
 	}
-	BCM.arrXt_ne = MAX_POINTS;
+	BCM.arrXt_ne = BCM.arr_ne;
 	D(0, ("TRACE\n"));
 	while(ioc_work) {
 		if(	epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
@@ -185,43 +187,19 @@ static void BCM_run(void* arg)
 
 		if(	epicsEventTryWait(BCM.connect_event) == epicsEventWaitOK) {
 			int state;
-			if (BCM.connect == 1){
-				con.hostname = BCM.hostname;
-				con.portno = BCM.portno;
-				create_next_command_node(&list, START_GENERATOR);
-				create_next_command_node(&list, WRITE_REGISTER, 0, BCM.remote_start << 1);
-				create_next_command_node(&buffer, STOP_CYCLE);
-				create_next_command_node(&buffer, START_CYCLE);
-				create_next_command_node(&buffer, READ_BUFFER, 0, 127);
-				if (initiate_connection(&con) == 0){
-					BCM.connected = 1;
-					commandlist* ptr = list;
-					while (ptr != NULL){
-						ptr = ptr->next;
-					}
-				}
-			}
-			else {
-				if (close_connection(&con) == 0){
-					BCM.connected = 0;
-					free_list(&buffer);
-					free_list(&list);
-				}
-			}
+      BCM.connected = Device.connect(BCM.hostname, BCM.portno);
 			D(0, ("Connection: %d\n", BCM.connected));
 			post_event(CONNECTED_EVENT);
 			post_event(K_EVENT);
 		}
 		if(	epicsEventTryWait(BCM.gain_event) == epicsEventWaitOK) {
-			create_next_command_node(&buf, WRITE_REGISTER, 2, BCM.gain);
-			command_execution(buf, &con);
+      Device.set_K_gain(BCM.gain);
 			BCM.gainK = BCM.gain * 2;
-			free_list(&buf);
 			post_event(K2_EVENT);
 		}
 		if(	epicsEventTryWait(BCM.update_stats_event) == epicsEventWaitOK) {
-			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
-			BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
+//			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
+//			BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
 			BCM.update_stats = 0;
 		}
 		if(	epicsEventTryWait(BCM.wndBeg_event) == epicsEventWaitOK ||
@@ -238,27 +216,8 @@ static void BCM_run(void* arg)
 		count++;
 		if((count % 5) == 0) {
 			int connecting = BCM.connected; 
-			commandlist* ptr = buffer;	
-			while (connecting == 1 && ptr != NULL){
-				command_execution(ptr, &con);
-				int i, j;
-				switch(ptr->number){
-					case READ_BUFFER:
-						D(0,("reading %d\n", ptr->result_size));
-						if (ptr->result_size == 0)
-							break;
-						for (i = 0, j = 0; i < ptr->result_size; i++, j++)
-							BCM.arr[i] = ptr->result[i];
-						BCM.arr_ne = ptr->result_size;
-						if (BCM.QK == 0)
-							BCM.QK = 1;
-						BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
-						BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
-						break;
-					default:
-						break;
-				}
-				ptr = ptr->next;
+			while (connecting == 1){
+        Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
 			}
 			post_event(DATA_EVENT);
 			post_event(K2_EVENT);
@@ -286,8 +245,6 @@ int wait_exit()
 
 
 #endif
-
-
 
 
 DECL_C_VAR(int,debug_level_ioc,2)

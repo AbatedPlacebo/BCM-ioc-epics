@@ -7,7 +7,7 @@ template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
     PROTOBCM<DEV> connection;
   public:
     PROTOHI();
-    int get_ADC_buffer(float*, int);
+    int get_ADC_buffer(double*, int);
     int set_K_gain(unsigned int);
     int set_start_mode(bool);
     int connect(const char*, int);
@@ -102,7 +102,7 @@ CHK_ERR:
 }
 
 template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::get_ADC_buffer(float* buffer, int size){
+int PROTOHI<DEV, PROTOCOL>::get_ADC_buffer(double* buffer, int size){
   return 0;
 }
 

@@ -1,8 +1,10 @@
 #ifndef BCMDEV_H
 #define BCMDEV_H
-#include <cstdint> 
+#define OSCSIZE 65536
 
-struct BCMDEV {
+#include <stdint.h> 
+
+typedef struct BCMDEV {
   enum CONSTANTS {
     ACK_PACKET = 0x10,
     ACK_LENGTH = 4,
@@ -53,6 +55,6 @@ struct BCMDEV {
   typedef uint32_t REG_t;
   typedef uint32_t REG_CACHE_MASK_t;
   static const REG_CACHE_MASK_t REG_CACHE_MASK = (1 << REG::STATUS) | (1 << REG::R1);
-};
+} BCMDEV;
 
 #endif
