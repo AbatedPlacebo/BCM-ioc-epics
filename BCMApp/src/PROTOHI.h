@@ -1,25 +1,40 @@
 #include "PROTOBCM.h"
 
 template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
-  private:
-    const char* hostname;
-    int port;
-    PROTOBCM<DEV> connection;
   public:
     PROTOHI();
-    int get_ADC_buffer(double*, int);
-    int set_K_gain(unsigned int);
-    int set_start_mode(bool);
-    int connect(const char*, int);
+    int get_ADC_buffer(double* buffer, int size);
+    int set_K_gain(unsigned int value);
+    int set_start_mode(bool mode);
+    int connect(const char* _hostname, int _port);
     int disconnect();
     int start_generator();
+    int start_measurement();
+    int is_connected() const;
+    template<typename CFG> int config(CFG& cfg);
+    int print_all_regs();
     ~PROTOHI();
+  private:
+    PROTOCOL<DEV> connection;
+    const char* hostname;
+    int port;
+    struct encode {
+      uint32_t start_mode(int v){ return v ? 0b10 : 0b00; }
+      uint32_t k_gain(int v){ return v ? v & 0b11000 : 0b00000; }
+      uint32_t ndel0(int v){ return v ? v & 0x10000 : 0x00000; }
+    } encode;
+    struct decode {
+			int start_mode(uint32_t r){ return (r & 0b10) == 0b10; }
+			float k_gain(uint32_t r){ return r; }
+      int n_del0(uint32_t r){ return r; }
+    } decode;
 };
+
 
 template <typename DEV, template<typename> typename PROTOCOL>
 PROTOHI<DEV, PROTOCOL>::PROTOHI() { }
 
-template <typename DEV, template<typename> typename PROTOCOL>
+  template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::start_generator() 
 { 
   int err = -1;
@@ -48,7 +63,7 @@ PROTOHI<DEV, PROTOCOL>::~PROTOHI(){
   disconnect();
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
+  template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::connect(const char* _hostname, int _port)
 {
   hostname = _hostname;
@@ -79,6 +94,11 @@ CHK_ERR:
 }
 
 template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::is_connected() const{
+  return connection.is_connected();
+}
+
+  template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::disconnect()
 {
   int err = -1;
@@ -106,7 +126,7 @@ int PROTOHI<DEV, PROTOCOL>::get_ADC_buffer(double* buffer, int size){
   return 0;
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
+  template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::set_K_gain(unsigned int value)
 {
   int err = -1;
@@ -117,4 +137,54 @@ int PROTOHI<DEV, PROTOCOL>::set_K_gain(unsigned int value)
 CHK_ERR:
   return err;
 }
+
+
+  template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::start_measurement()
+{
+  int err = -1;
+  unsigned int checking_value;
+  CHK(err = connection.start());
+  D(2, ("Measurement started!"));
+CHK_ERR:
+  return err;
+}
+
+template <typename DEV, template<typename> typename PROTOCOL>
+  template <typename CFG>
+int PROTOHI<DEV, PROTOCOL>::config(CFG& cfg)
+{
+  int err = -1;
+  unsigned int mode = encode.start_mode(cfg.start_mode);
+  unsigned int k_gain = encode.k_gain(cfg.k_gain);
+  unsigned int ndel0 = encode.ndel0(cfg.ndel0);
+  CHK(err = connection.wr_reg(DEV::REG::R0, mode));
+  CHK(err = connection.wr_reg(DEV::REG::R1, ndel0));
+  CHK(err = connection.wr_reg(DEV::REG::R2, k_gain));
+  return 0;
+CHK_ERR:
+  return err < 0 ? err : -1;
+}
+
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::print_all_regs(){
+  int err = -1;
+	uint32_t r;
+	typename DEV::REG_t regs[DEV::REG_SIZE];
+	for (int i = 0; i < DEV::REG_SIZE; ++i) {
+    CHK(err = connection.rd_reg(i, &r));
+    regs[i] = r;
+    switch(i)
+    {
+      case DEV::REG::R0:
+        D(0, ("reg %i = 0x%04x(%i) start_mode=%s \n", i, r, r,
+              decode.start_mode(r) ? "int" : "ext"));
+        break;
+			default:
+				D(0, ("reg %i = 0x%04x(%i)\n", i, r, r));
+    }
+  }
+CHK_ERR:
+    return err;
+  }
 

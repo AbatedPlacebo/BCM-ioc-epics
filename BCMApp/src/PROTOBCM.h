@@ -23,7 +23,6 @@ class PROTOBCM {
     int send(void *buf, int buf_size);
     int recv(void *buf, int buf_size);
     // middle level
-    int is_connected() const;
     int socket();
     int send_com(int instr, int nreg, int param1, int param2 = 0);
     int ack_to(int cmd, int regn, 
@@ -47,6 +46,7 @@ class PROTOBCM {
         unsigned int end_page, int* arr, int* size);
     int init_generator(); 
     int reset_measurement_cnt();
+    int is_connected() const;
     int wrrd_reg(unsigned int regn, unsigned int *param);
 };
 
@@ -141,12 +141,10 @@ static int SetSockTO(SOCKET s, int to_msec)
   return (Error);
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::connect(const char *peer, int port)
 {
   struct hostent *host;
-
-  //unet_regs(con->regs);
 
   CHKTRUE((host = gethostbyname(peer)) != NULL);
   CHK(sock = ::socket(AF_INET, SOCK_DGRAM, 0));
@@ -182,13 +180,13 @@ int print_buf(uint8_t* buf, int buf_size)
   return 0;
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::send(void *buf, int buf_size)
 {
   int err = -1;
   CHKTRUE(sock >= 0);
   Dif(4){ D(0,("send "));
-  print_buf((uint8_t*)buf, buf_size); }
+    print_buf((uint8_t*)buf, buf_size); }
   CHK((err = (::sendto(sock, buf, buf_size, 0, (struct sockaddr*)&serv_addr, sizeof(serv_addr)))));
   return err;
 
@@ -197,7 +195,7 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::recv(void *buf, int buf_size)
 {
   int err = -1;
@@ -213,7 +211,7 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::send_com(int instr, int nreg, int param1, int param2)
 {
   int err = -1;
@@ -231,7 +229,7 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::ack_to(int cmd, int regn, int to_ms, int count, int repeat)
 {
   int err = -1;
@@ -264,7 +262,7 @@ CHK_ERR:
   return -1;
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::recv_to(void *_buf, int _size, 
     int _to_ms, const int unet_flag)
 { ;
@@ -282,7 +280,7 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::ready_udp(int timeout_ms)
 {
   fd_set fdset;
@@ -305,7 +303,7 @@ int PROTOBCM<DEV>::ready_udp(int timeout_ms)
   return ret;
 }
 
-template <typename DEV>
+  template <typename DEV>
 int PROTOBCM<DEV>::cunet_print(int _debug_level, const char* str, uint8_t* buf, int size)
 {
   int i;
@@ -317,7 +315,7 @@ int PROTOBCM<DEV>::cunet_print(int _debug_level, const char* str, uint8_t* buf, 
 }
 
 template <typename DEV>
-int wr_reg(unsigned int regn, unsigned int param) {
+int PROTOBCM<DEV>::wr_reg(unsigned int regn, unsigned int param){
   int err = -1;
   uint8_t ack[DEV::CONSTANTS::ACK_LENGTH];
   int cnt;
@@ -332,14 +330,14 @@ REP:
       --rep;
       goto REP;
     }
-      ++cnt;
-      continue;
-    }
-    CHKTRUEMESG(err == sizeof(ack),("err=%i\n", err));
-    CHKTRUE(ack[0] == DEV::CONSTANTS::ACK_PACKET);
-    CHKTRUE(ack[1] == DEV::CMD::CMD_WRREG);
-    CHKTRUE(ack[2] == regn);
-    CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+    ++cnt;
+    continue;
+  }
+  CHKTRUEMESG(err == sizeof(ack),("err=%i\n", err));
+  CHKTRUE(ack[0] == DEV::CONSTANTS::ACK_PACKET);
+  CHKTRUE(ack[1] == DEV::CMD::CMD_WRREG);
+  CHKTRUE(ack[2] == regn);
+  CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
   return err;
 CHK_ERR:
   if (err > 0)
@@ -568,7 +566,7 @@ REP:
     if (ack[0] == 0x10) {
       int pack = 1;
       WARNTRUE(ack[0] == 0x10                     || (pack = 0));
-      WARNTRUE(ack[1] == DEV::CMD_WRRDREG           || (pack = 0));
+      WARNTRUE(ack[1] == DEV::CMD_WRRDREG         || (pack = 0));
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)

@@ -89,6 +89,10 @@ BCM_LIBS += autosave
 # Finally link to the EPICS Base libraries
 BCM_LIBS += $(EPICS_BASE_IOC_LIBS)
 
+
+PROD_IOC += BCMCLI
+BCMCLI_SRCS += BCMCLI.cpp
+
 ### LIBS_ADD_PLACEHOLDER
 
 #=============================
