@@ -13,5 +13,5 @@ envPaths
 *.vim
 .*swp
 *.o*
-/BCMApp/src/template/main
-/BCMApp/src/template/tags
+main
+tags
