@@ -42,8 +42,8 @@ class PROTOBCM {
     int rd_reg(unsigned int regn, unsigned int *param); 
     int start(); 
     int stop();
-    int rd_ADC(unsigned int start_page,
-        unsigned int end_page, int* arr, int* size);
+    int rd_ADC(int* arr, int size, unsigned int start_page,
+        unsigned int end_page);
     int init_generator(); 
     int reset_measurement_cnt();
     int is_connected() const;
@@ -451,8 +451,7 @@ CHK_ERR:
 }
 
 template <typename DEV>
-int PROTOBCM<DEV>::rd_ADC(unsigned int start_page, 
-    unsigned int end_page, int* arr, int* size){ 
+int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned int end_page){ 
   int err = -1;
   uint8_t ack[1034];
   int cnt;
@@ -468,10 +467,6 @@ REP:
       D(2,("repeat %i PROTOBCM<>::read_ADC %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
-    }
-    if (err == 2 && ack[0] == 0x11) {
-      ++cnt;
-      continue;
     }
     CHKTRUE(err == DEV::CONSTANTS::ACK_LENGTH);
     CHKTRUE(ack[0] == 0xF1 || ack[0] == 0x10);

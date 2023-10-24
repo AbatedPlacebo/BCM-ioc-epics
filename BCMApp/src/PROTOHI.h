@@ -123,7 +123,12 @@ CHK_ERR:
 
 template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::get_ADC_buffer(double* buffer, int size){
-  return 0;
+  int err = -1;
+  int arr[65536];
+  CHK(err = connection.rd_ADC(arr, 65536, 0, 127)); 
+  return err;
+CHK_ERR:
+  return err;
 }
 
   template <typename DEV, template<typename> typename PROTOCOL>

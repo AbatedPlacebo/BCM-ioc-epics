@@ -13,7 +13,25 @@ const char* arg0;
 
 void Usage()
 {
-  const char* fmt = "Wrong usage\n";
+  const char* fmt =
+    "Usage: %s -i ip [-init] [-pr] [-r R] [-w R,V] [-adc]\n"
+    " -D debug_level : debug level 0-9\n"
+    " -i ip: ip address A.B.C.D \n"
+    " -init: init\n"
+    " -start: internal start command\n"
+    " -pr: print registers\n"
+    " -r R: read register R\n"
+    " -w R,V: write register R with V\n"
+    " -startsrc|-ss 0|1|ext|int : start source 0 - external, 1 - internal \n"
+    " -gain NN: gain \n"
+    " -delsw NNNN: delay sw \n"
+    " -adc NNNNN: prints first N bytes of buf \n"
+    " -sw NNNN: length sw \n"
+    " -set IP: write ip A.B.C.D to regs \n"
+    " -commit: commit ip address \n"
+    " -sleep ms: sleep ms \n"
+    "\n"
+    ;
   printf(fmt, arg0);
   exit(1);
 }
@@ -59,6 +77,10 @@ int main(int argc, char** argv){
     }
 		else if(KEY(-start)) {
 			CHK(err = bcm.start_measurement());
+		}
+		else if(KEY(-adc)) {
+      double arr[65536];
+			CHK(err = bcm.get_ADC_buffer(arr, 65536));
 		}
 		else if(KEY(-r)) {
 			int r;
