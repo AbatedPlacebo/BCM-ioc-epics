@@ -1,4 +1,3 @@
-#include "PROTOBCM.h"
 
 template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
   public:
