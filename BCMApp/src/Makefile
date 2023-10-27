@@ -11,7 +11,6 @@ USR_SYS_LIBS += m
 USR_SYS_LIBS += gslcblas
 VPATH += $(TOP)/src
 USR_LDFLAGS += -rdynamic
-USR_LDFLAGS += -ggdb
 #=============================
 # Build the IOC support library
 
