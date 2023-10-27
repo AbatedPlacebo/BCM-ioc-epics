@@ -451,24 +451,26 @@ CHK_ERR:
 }
 
 template <typename DEV>
-int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned int end_page){ 
+int PROTOBCM<DEV>::rd_ADC(int* arr, int init_size, unsigned int start_page, unsigned int end_page){ 
   int err = -1;
   uint8_t ack[1034];
   int cnt;
-  int cnt_adc = start_page - end_page;
+  int cnt_adc = (end_page - start_page) < 0 ? 
+    start_page - end_page : end_page - start_page;
   int page = 0;
-  int rep = 1;
-REP:
+  int rep = 1; 
+  int size = init_size;
+  REP:
   D(3,("read_ADC %i %i\n", start_page, end_page));
   CHK(err = send_com(DEV::CMD_RDADC, 0, start_page, end_page));
-  for (cnt = 2 + cnt_adc; cnt > 0; --cnt) {
+  for (cnt = 1 + cnt_adc; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
     if (err == 0 && rep > 0) {
       D(2,("repeat %i PROTOBCM<>::read_ADC %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
-    CHKTRUE(err == DEV::CONSTANTS::ACK_LENGTH);
+    CHKTRUE(err == DEV::CONSTANTS::ACK_LENGTH || err == DEV::CONSTANTS::ADC_LENGTH);
     CHKTRUE(ack[0] == 0xF1 || ack[0] == 0x10);
     if (ack[0] == 0x10) {
       int pack = 1;
@@ -481,6 +483,7 @@ REP:
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf1) {
+      D(2, ("got adc package!\n"));
       int pack = 1;
       WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
       WARNTRUE(ack[1] == 0x08                     || (pack = 0));
@@ -488,11 +491,12 @@ REP:
         D(2,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
       int i;
-      for (i = 10; i < 1034; i++){
+      for (i = 10; i < init_size; i += 2){
         arr[i - 10 + (page * 1034)] = (ack[i] << 8) | (ack[i+1]);
       }
+      size = (size > 512) ? size - 512 : 0;
       page++;
-      D(3,("val %i(%04x)\n", ack[10], ack[11]));
+      D(4,("val %i(%04x)\n", ack[10], ack[11]));
     }
   }
   return err;

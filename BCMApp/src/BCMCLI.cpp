@@ -8,7 +8,7 @@
 #include "BCMDEV.h"
 #include "PROTOBCM.h"
 
-int debug_level = 2;
+int debug_level = 4;
 const char* arg0;
 
 void Usage()
@@ -47,6 +47,7 @@ int main(int argc, char** argv){
     int ndel0 = 1;
   } CFG;
   arg0 = argv[0];
+  D(4,("count = %d\n", argc));
   for(int arg = 0; arg < argc; ++arg) {
     D(4,("%i %s\n", arg, argv[arg]));
     if(arg == 0) {
@@ -79,14 +80,18 @@ int main(int argc, char** argv){
 			CHK(err = bcm.start_measurement());
 		}
 		else if(KEY(-adc)) {
-      double arr[65536];
-			CHK(err = bcm.get_ADC_buffer(arr, 65536));
+      int size = 0;
+			CHKTRUEMESG(sscanf(argv[arg+1], "%i", &size) == 1, ("Error: %s %s", argv[arg], argv[arg+1]));
+      D(0, ("size = %d\n", size));
+      double arr[size];
+			CHK(err = bcm.get_ADC_buffer(arr, size));
+      ++arg;
 		}
 		else if(KEY(-r)) {
 			int r;
 			uint32_t v;
 			CHKTRUEMESG(sscanf(argv[arg+1], "%i", &r) == 1, ("Error: %s %s", argv[arg], argv[arg+1]));
-			//CHK(err = bcm.rd_reg(r, &v)); ??
+			CHK(err = bcm.read_register(r, &v));
 			printf("reg %i = 0x%04x(%i)\n", r, v, v);
 			++arg;
 		}
@@ -94,9 +99,11 @@ int main(int argc, char** argv){
 			printf("Error at arg %i = %s\n", arg, argv[arg]);
 			Usage();
 		}
-  return 0;
-CHK_ERR:
-	return err < 0 ? err : -1;
   }
   return 0;
+  if(0){
+  }
+  return 0;
+CHK_ERR:
+  return err < 0 ? err : -1;
 }

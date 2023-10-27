@@ -1,8 +1,11 @@
+#include "PROTOBCM.h"
 
 template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
   public:
     PROTOHI();
     int get_ADC_buffer(double* buffer, int size);
+    int read_register(unsigned int regn, 
+      unsigned int *param); 
     int set_K_gain(unsigned int value);
     int set_start_mode(bool mode);
     int connect(const char* _hostname, int _port);
@@ -123,8 +126,12 @@ CHK_ERR:
 template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::get_ADC_buffer(double* buffer, int size){
   int err = -1;
-  int arr[65536];
-  CHK(err = connection.rd_ADC(arr, 65536, 0, 127)); 
+  int arr[size];
+  CHKTRUE(size > 0 && size < 65535);
+  CHK(err = connection.rd_ADC(arr, size, 0, (int)(size/512) + 1)); 
+  for (int i = 0; i < size; i++){
+    buffer[i] = (double)arr[i];
+  }
   return err;
 CHK_ERR:
   return err;
@@ -153,6 +160,19 @@ int PROTOHI<DEV, PROTOCOL>::start_measurement()
 CHK_ERR:
   return err;
 }
+
+
+  template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::read_register(unsigned int regn, 
+      unsigned int *param)
+{
+  int err = -1;
+  CHK(err = connection.rd_reg(regn, param));
+  D(2, ("Register has been read!"));
+CHK_ERR:
+  return err;
+}
+
 
 template <typename DEV, template<typename> typename PROTOCOL>
   template <typename CFG>

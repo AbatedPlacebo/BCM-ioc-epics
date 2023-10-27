@@ -8,6 +8,7 @@ typedef struct BCMDEV {
   enum CONSTANTS {
     ACK_PACKET = 0x10,
     ACK_LENGTH = 4,
+    ADC_LENGTH = 1034,
     CONF_LENGTH = 2,
     CONF_PACKET = 0x11,
   };
