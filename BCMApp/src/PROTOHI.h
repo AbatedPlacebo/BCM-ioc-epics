@@ -1,3 +1,4 @@
+#include "PROTOBCM.h"
 
 template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
   public:
@@ -23,8 +24,8 @@ template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
       uint32_t ndel0(int v){ return v ? v & 0x10000 : 0x00000; }
     } encode;
     struct decode {
-			int start_mode(uint32_t r){ return (r & 0b10) == 0b10; }
-			float k_gain(uint32_t r){ return r; }
+      int start_mode(uint32_t r){ return (r & 0b10) == 0b10; }
+      float k_gain(uint32_t r){ return r; }
       int n_del0(uint32_t r){ return r; }
     } decode;
 };
@@ -33,7 +34,7 @@ template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
 template <typename DEV, template<typename> typename PROTOCOL>
 PROTOHI<DEV, PROTOCOL>::PROTOHI() { }
 
-  template <typename DEV, template<typename> typename PROTOCOL>
+template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::start_generator() 
 { 
   int err = -1;
@@ -62,7 +63,7 @@ PROTOHI<DEV, PROTOCOL>::~PROTOHI(){
   disconnect();
 }
 
-  template <typename DEV, template<typename> typename PROTOCOL>
+template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::connect(const char* _hostname, int _port)
 {
   hostname = _hostname;
@@ -97,7 +98,7 @@ int PROTOHI<DEV, PROTOCOL>::is_connected() const{
   return connection.is_connected();
 }
 
-  template <typename DEV, template<typename> typename PROTOCOL>
+template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::disconnect()
 {
   int err = -1;
@@ -130,7 +131,7 @@ CHK_ERR:
   return err;
 }
 
-  template <typename DEV, template<typename> typename PROTOCOL>
+template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::set_K_gain(unsigned int value)
 {
   int err = -1;
@@ -143,7 +144,7 @@ CHK_ERR:
 }
 
 
-  template <typename DEV, template<typename> typename PROTOCOL>
+template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::start_measurement()
 {
   int err = -1;
@@ -155,7 +156,7 @@ CHK_ERR:
 }
 
 template <typename DEV, template<typename> typename PROTOCOL>
-  template <typename CFG>
+template <typename CFG>
 int PROTOHI<DEV, PROTOCOL>::config(CFG& cfg)
 {
   int err = -1;
@@ -173,9 +174,9 @@ CHK_ERR:
 template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::print_all_regs(){
   int err = -1;
-	uint32_t r;
-	typename DEV::REG_t regs[DEV::REG_SIZE];
-	for (int i = 0; i < DEV::REG_SIZE; ++i) {
+  uint32_t r;
+  typename DEV::REG_t regs[DEV::REG_SIZE];
+  for (int i = 0; i < DEV::REG_SIZE; ++i) {
     CHK(err = connection.rd_reg(i, &r));
     regs[i] = r;
     switch(i)
@@ -184,11 +185,11 @@ int PROTOHI<DEV, PROTOCOL>::print_all_regs(){
         D(0, ("reg %i = 0x%04x(%i) start_mode=%s \n", i, r, r,
               decode.start_mode(r) ? "int" : "ext"));
         break;
-			default:
-				D(0, ("reg %i = 0x%04x(%i)\n", i, r, r));
+      default:
+        D(0, ("reg %i = 0x%04x(%i)\n", i, r, r));
     }
   }
 CHK_ERR:
-    return err;
-  }
+  return err;
+}
 

@@ -37,8 +37,7 @@
 #include "PROTOBCM.h"
 
 //#define debug_level debug_level_ioc
-extern int debug_level_ioc;
-
+//extern int debug_level_ioc;
 int debug_level = 2;
 
 #define ALIAS(name) name
