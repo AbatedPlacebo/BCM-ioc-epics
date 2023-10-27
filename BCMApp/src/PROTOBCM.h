@@ -437,7 +437,7 @@ int PROTOBCM<DEV>::start() {
   int err = -1;
   uint8_t ack[DEV::CONSTANTS::ACK_LENGTH];
   CHK(err = send_com(DEV::CMD_START, 0, 0));
-  CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
+  CHK(err = recv_to(ack, sizeof(ack), 100/*, 0*/));
   CHKTRUE(err == sizeof(ack));
   CHKTRUE(ack[0] == 0x10);
   CHKTRUE(ack[1] == DEV::CMD_START);
@@ -490,9 +490,9 @@ int PROTOBCM<DEV>::rd_ADC(int* arr, int init_size, unsigned int start_page, unsi
       if (pack == 0)
         D(2,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
-      int i;
-      for (i = 10; i < init_size; i += 2){
-        arr[i - 10 + (page * 1034)] = (ack[i] << 8) | (ack[i+1]);
+      int i, j;
+      for (i = 0, j = 10; i < init_size; i++, j += 2){
+        arr[i] = (ack[j] << 8) | (ack[j+1]);
       }
       size = (size > 512) ? size - 512 : 0;
       page++;

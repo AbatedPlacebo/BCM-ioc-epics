@@ -16,3 +16,5 @@ envPaths
 main
 tags
 .*nfs
+*.tar
+makeIOCfromGenlibTemplate.sh
