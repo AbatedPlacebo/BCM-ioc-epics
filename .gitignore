@@ -1,6 +1,6 @@
 O.*
 /bin
-/cscope.out
+*.out
 /db
 /dbd
 envPaths

@@ -1,7 +1,7 @@
 set fileencodings=utf-8
 set modeline
-set tabstop=4
-set shiftwidth=4
+set tabstop=2
+set shiftwidth=2
 autocmd BufRead *.c,*.h,*.cpp,*.hpp   set cindent
 "autocmd BufRead *.c,*.h,*.cpp   set foldmethod=syntax
 "au BufWinLeave *.c,*.h,*.cpp mkview

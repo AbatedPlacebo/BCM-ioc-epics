@@ -11,7 +11,6 @@
 #endif
 
 #define Dif(level) if(level <= debug_level)
-
 #define D(level,fmto) do{ if(level<=debug_level) {CHKCURPOS D_DATATIME;D_PRINTF(D_PREF "%s:%i:",D_FILE_NAME(__FILE__),__LINE__);D_PRINTF fmto;} }while(0)
 #define Dcont(level,fmto) do{ if(level<=debug_level) {D_PRINTF fmto;} }while(0)
 #define D_(level,fmto) do{ if(level<=debug_level) {D_PRINTF fmto;} }while(0)

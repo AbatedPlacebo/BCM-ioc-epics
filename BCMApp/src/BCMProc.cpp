@@ -25,16 +25,20 @@
 #include <iocsh.h>
 #include <errlog.h>
 #include <iocLog.h>
+
+#include "waveFormMap.h"
+
 #endif
 
-#include"BCM.h"
-#include"chk_dt.h"
-#include"chk.h"
+#include "BCM.h"
+#include "chk_dt.h"
+#include "chk.h"
 
 // Driver library
 #include "PROTOHI.h"
 #include "BCMDEV.h"
 #include "PROTOBCM.h"
+
 
 //#define debug_level debug_level_ioc
 //extern int debug_level_ioc;
@@ -50,7 +54,7 @@ int debug_level = 2;
 
 
 #ifndef EPICS_VERSION_INT
-#define VERSION_INT(v,r,m,p) (((v)<<24) | ((r) << 16) | ((m) << 8) | (p))
+#define VERSION_INT(v,r,m,p) (((v) << 24) | ((r) << 16) | ((m) << 8) | (p))
 #define EPICS_VERSION_INT VERSION_INT(EPICS_VERSION, EPICS_REVISION, EPICS_MODIFICATION, EPICS_PATCH_LEVEL)
 #endif
 
@@ -108,12 +112,16 @@ int debug_level = 2;
  *                                                                          *
  ****************************************************************************/
 //#define sINFO_MESSAGE(fname) printf("process: %s\n", #fname);
-#include"gen_c.h"
-#include"gen_init.h"
+#include "gen_c.h"
+#include "gen_init.h"
 
 TBCM BCM;
 
 PROTOHI<BCMDEV, PROTOBCM> Device;
+
+epicsEventId curEvent;
+
+int timeout = 1;
 
 static void BCM_run(void* arg);
 
@@ -122,124 +130,136 @@ static void BCM_run(void* arg);
 
 static int bcm_wait_autosave(double timeout)
 {
-	epicsTimeStamp t0;
-	epicsTimeStamp t1;
-	double to;
-	int success_count = 0;
-	int fail_count = 0;
-	epicsTimeGetCurrent(&t0);
-	DECL_BCM(WAIT);
-	epicsTimeGetCurrent (&t1);
-	D(0, ("success wait %i, fail wait %i, saverestor time: %g\n",
-				success_count, fail_count, epicsTimeDiffInSeconds( &t1, &t0)));
-	return 0;
+  epicsTimeStamp t0;
+  epicsTimeStamp t1;
+  double to;
+  int success_count = 0;
+  int fail_count = 0;
+  epicsTimeGetCurrent(&t0);
+  DECL_BCM(WAIT);
+  epicsTimeGetCurrent(&t1);
+  D(0, ("success wait %i, fail wait %i, saverestore time: %g\n",
+        success_count, fail_count, epicsTimeDiffInSeconds(&t1, &t0)));
+  return 0;
 }
 
 static void BCM_init(int i)
 {
-	D(0, ("TRACE\n"));
-	D(0, ("argv0=%s argv1=%s\n", argv0, argv1));
-	sig_handler_install();
-	if(work_event==0) {
-		work_event = epicsEventCreate(epicsEventEmpty);
+  D(0, ("TRACE\n"));
+  D(0, ("argv0=%s argv1=%s\n", argv0, argv1));
+  sig_handler_install();
+  if(work_event==0) {
+    work_event = epicsEventCreate(epicsEventEmpty);
 #define INIT_PREF(v) BCM.v
-		DECL_BCM(INIT);
-	}
+    DECL_BCM(INIT);
+  }
 
-	if(i!=0) {
-		if(work_th==0) {
-			work_th = epicsThreadCreate("BCM_run",
-					epicsThreadPriorityMedium, epicsThreadGetStackSize(epicsThreadStackMedium),
-					BCM_run, NULL);
-		}
-		else {
-			printf("already executed\n");
-		}
-	}
-	else {
-		ioc_work = 0;
-		sig_handler_uninstall();
-	}
-	// stab_run(NULL);
-	D(0, ("TRACE\n"));
+  if(i!=0) {
+    if(work_th==0) {
+      work_th = epicsThreadCreate("BCM_run",
+          epicsThreadPriorityMedium, epicsThreadGetStackSize(epicsThreadStackMedium),
+          BCM_run, NULL);
+    }
+    else {
+      printf("already executed\n");
+    }
+  }
+  else {
+    ioc_work = 0;
+    sig_handler_uninstall();
+  }
+  // stab_run(NULL);
+  D(0, ("TRACE\n"));
 }
 
 static void BCM_run(void* arg)
 {
-	int count = 0;
-	ioc_work = 1;
-	bcm_wait_autosave(5.0);
-	BCM.gainK = 2;
-	BCM.QK = 1;
-	double val = 0;
-	int i;
-	for (i = 0; i < BCM.arr_ne; i++){
-		BCM.arrXt[i] = val; 
-	//	val += BCMWAVEFORM_LENGTH_TIME;
-	}
-	BCM.arrXt_ne = BCM.arr_ne;
-	D(0, ("TRACE\n"));
-	while(ioc_work) {
-		if(	epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
-			D(3,("произошло обновление pv для записи или мониторинга\n"));
-		}
-
-		if(	epicsEventTryWait(BCM.connect_event) == epicsEventWaitOK) {
-			int state;
-      BCM.connected = Device.connect(BCM.hostname, BCM.portno);
-			D(0, ("Connection: %d\n", BCM.connected));
-			post_event(CONNECTED_EVENT);
-			post_event(K_EVENT);
-		}
-		if(	epicsEventTryWait(BCM.gain_event) == epicsEventWaitOK) {
+  int count = 0;
+  ioc_work = 1;
+  bcm_wait_autosave(5.0);
+  BCM.gainK = 2;
+  BCM.QK = 1;
+  double val = 0;
+  int i;
+  WFM(BCM.arr).resize(OSCSIZE);
+  WFM(BCM.arrXt).linspace(WAVEFORM_LENGTH_TIME, WAVEFORM_LENGTH_TIME, WFM(BCM.arr).size());
+  D(0, ("TRACE\n"));
+  while(ioc_work) {
+    if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
+      D(3,("произошло обновление pv для записи или мониторинга\n"));
+    }
+    if(epicsEventTryWait(curEvent = BCM.connect_event) == epicsEventWaitOK) {
+      int state = BCM.connect;
+      if (state == true){
+        CHK(Device.connect(BCM.hostname, BCM.portno));
+        Device.set_start_mode(BCM.remote_start);
+        BCM.connected = Device.is_connected();
+        post_event(K_EVENT);
+      }
+      else {
+        Device.disconnect();
+        BCM.connected = Device.is_connected();
+      }
+      D(0, ("Connection: %d\n", BCM.connected));
+      post_event(CONNECTED_EVENT);
+    }
+    if(epicsEventTryWait(curEvent = BCM.gain_event) == epicsEventWaitOK) {
       Device.set_K_gain(BCM.gain);
-			BCM.gainK = BCM.gain * 2;
-			post_event(K2_EVENT);
-		}
-		if(	epicsEventTryWait(BCM.update_stats_event) == epicsEventWaitOK) {
-//			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
-//			BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
-			BCM.update_stats = 0;
-		}
-		if(	epicsEventTryWait(BCM.wndBeg_event) == epicsEventWaitOK ||
-			epicsEventTryWait(BCM.wndLen_event) == epicsEventWaitOK) {
-				if (BCM.wndBeg > BCM.wndLen){
-					double temp = BCM.wndBeg;
-					BCM.wndBeg = BCM.wndLen;
-					BCM.wndLen = temp;
-				}
-		}
-		//
-		//epicsEventWaitWithTimeout(work_event, 1.0);
-		//stab.injection = count;
-		count++;
-		if((count % 5) == 0) {
-			int connecting = BCM.connected; 
-			while (connecting == 1){
+      BCM.gainK = BCM.gain * 2;
+      post_event(K2_EVENT);
+    }
+    if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
+      //			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
+      //			BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
+      BCM.update_stats = 0;
+    }
+    if(epicsEventTryWait(curEvent = BCM.wndBeg_event) == epicsEventWaitOK ||
+        epicsEventTryWait(curEvent = BCM.wndLen_event) == epicsEventWaitOK) {
+      if (BCM.wndBeg > BCM.wndLen){
+        double temp = BCM.wndBeg;
+        BCM.wndBeg = BCM.wndLen;
+        BCM.wndLen = temp;
+      }
+    }
+    //
+    //epicsEventWaitWithTimeout(work_event, 1.0);
+    //stab.injection = count;
+    count++;
+    if((count % 3) == 0) {
+      int connecting = BCM.connected;
+      if (connecting == 1){
+        Device.start_measurement();
         Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
-			}
-			post_event(DATA_EVENT);
-			post_event(K2_EVENT);
-		}
-		//if(count>10)
-		//	ioc_work = 0;
-	}
-	D(0, ("TRACE\n"));
-	if(signal_exit) {
-		term_echo_on();
-		epicsExit(-1);
-	}
-	work_th = (epicsThreadId)0;
+        post_event(DATA_EVENT);
+      }
+    }
+    //if(count>10)
+    //	ioc_work = 0;
+    continue;
+CHK_ERR:
+      D(0, ("Failed to connect! Status: %d\n", Device.is_connected()));
+      D(0, ("Timeout %d commencing!\n", timeout));
+      epicsThreadSleep(timeout);
+      timeout = (timeout < 5) ? timeout + 1 : timeout;
+      CHK(Device.connect(BCM.hostname, BCM.portno));
+      epicsEventSignal(curEvent);
+  }
+  D(0, ("TRACE\n"));
+  if(signal_exit) {
+    term_echo_on();
+    epicsExit(-1);
+  }
+  work_th = (epicsThreadId)0;
 }
 
 int wait_exit()
 {
-	ioc_work = 0;
-	while(work_th) {
-		D(2,("wait exit\n"));
-		epicsThreadSleep(1);
-	}
-	return 0;
+  ioc_work = 0;
+  while(work_th) {
+    D(2,("wait exit\n"));
+    epicsThreadSleep(1);
+  }
+  return 0;
 }
 
 
@@ -250,7 +270,7 @@ DECL_C_VAR(int,debug_level_ioc,2)
 DECL_C_VAR(int,debug_sub_exec,0)
 #define DECL_GLOBAL_PREF BCM.
 DECL_BCM(DECL_GLOBAL)
-//DECL_VAR_FUNC(int,command,0,3)
-//MEAS_LIST(CA_MEAS_DATA)
+  //DECL_VAR_FUNC(int,command,0,3)
+  //MEAS_LIST(CA_MEAS_DATA)
 DECL_FUNC_i(BCM_init)
-	
+

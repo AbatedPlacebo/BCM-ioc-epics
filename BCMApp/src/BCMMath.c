@@ -8,11 +8,11 @@ double calcQ(int* arr, int size, double wnd1, double wnd2, double QK, int gain, 
 	}
 	double integral = 0.0;
 	int i;
-	double dt = WAVEFORM_LENGTH_TIME; 
+	double dt = WAVEFORM_LENGTH_TIME;
 	int beg = wnd1 / dt;
 	int end = wnd2 / dt;
 	for (i = beg; i < end; i += 1){
-		integral += fabs(arr[i]) * dt; 
+		integral += fabs(arr[i]) * dt;
 	}
 	return QK * pow(10.0, -gain * gainK / 20.0) * integral;
 }
@@ -23,7 +23,7 @@ double timeQ(int* arr, int* extY, int size, double wnd1, double wnd2, int minmax
 		wnd1 = wnd2;
 		wnd2 = tmp;
 	}
-	double dt = WAVEFORM_LENGTH_TIME; 
+	double dt = WAVEFORM_LENGTH_TIME;
 	int beg = wnd1 / dt;
 	int end = wnd2 / dt;
 	// j - num of maxs

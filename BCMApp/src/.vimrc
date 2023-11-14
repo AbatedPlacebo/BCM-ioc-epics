@@ -1,4 +1,4 @@
-source ../../_vimrc_common
+source ../../.vimrc_common
 set path+=../..
 set path+=../../inc
 set path+=../../src

@@ -1,7 +1,0 @@
-set path+=../inc
-set path+=../src
-set path+=../genlib
-set path+=/usr/lib/epics/include
-set fileencodings=utf-8
-source ../_vimrc_common
-

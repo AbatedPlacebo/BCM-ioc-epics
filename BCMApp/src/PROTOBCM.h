@@ -93,7 +93,7 @@ int PROTOBCM<DEV>::disconnect()
 template <typename DEV>
 int PROTOBCM<DEV>::is_connected() const
 {
-  return ((sock >= 0) ? 1 : 0);
+  return (sock >= 0) ? 1 : 0;
 }
 
 template <typename DEV>
@@ -141,7 +141,7 @@ static int SetSockTO(SOCKET s, int to_msec)
   return (Error);
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::connect(const char *peer, int port)
 {
   struct hostent *host;
@@ -180,7 +180,7 @@ int print_buf(uint8_t* buf, int buf_size)
   return 0;
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::send(void *buf, int buf_size)
 {
   int err = -1;
@@ -195,7 +195,7 @@ CHK_ERR:
   return err;
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::recv(void *buf, int buf_size)
 {
   int err = -1;
@@ -211,7 +211,7 @@ CHK_ERR:
   return err;
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::send_com(int instr, int nreg, int param1, int param2)
 {
   int err = -1;
@@ -229,7 +229,7 @@ CHK_ERR:
   return err;
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::ack_to(int cmd, int regn, int to_ms, int count, int repeat)
 {
   int err = -1;
@@ -262,7 +262,7 @@ CHK_ERR:
   return -1;
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::recv_to(void *_buf, int _size, 
     int _to_ms, const int unet_flag)
 { ;
@@ -280,7 +280,7 @@ CHK_ERR:
   return err;
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::ready_udp(int timeout_ms)
 {
   fd_set fdset;
@@ -303,7 +303,7 @@ int PROTOBCM<DEV>::ready_udp(int timeout_ms)
   return ret;
 }
 
-  template <typename DEV>
+template <typename DEV>
 int PROTOBCM<DEV>::cunet_print(int _debug_level, const char* str, uint8_t* buf, int size)
 {
   int i;
@@ -435,14 +435,42 @@ CHK_ERR:
 template <typename DEV>
 int PROTOBCM<DEV>::start() {
   int err = -1;
+  int rep = 1;
+  int cnt;
   uint8_t ack[DEV::CONSTANTS::ACK_LENGTH];
+REP:
+  (3,("Start measurement...\n"));
   CHK(err = send_com(DEV::CMD_START, 0, 0));
-  CHK(err = recv_to(ack, sizeof(ack), 100/*, 0*/));
-  CHKTRUE(err == sizeof(ack));
-  CHKTRUE(ack[0] == 0x10);
-  CHKTRUE(ack[1] == DEV::CMD_START);
-  CHKTRUE(ack[2] == 0);
-  CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+  for (cnt = 2; cnt > 0; --cnt) {
+    CHK(err = recv_to(ack, sizeof(ack), 1000/*, 0*/));
+    if (err == 0 && rep > 0) {
+      D(2,("repeat %i PROTOBCM<>::start %s\n", rep, __FUNCTION__));
+      --rep;
+      goto REP;
+    }
+    CHKTRUE(err == DEV::CONSTANTS::ACK_LENGTH ||
+        err == DEV::CONSTANTS::CONF_LENGTH);
+    CHKTRUE(ack[0] == 0x10 || ack[0] == 0x11);
+    CHKTRUE(ack[1] == DEV::CMD_START);
+    if (ack[0] == 0x10) {
+      int pack = 1;
+      WARNTRUE(ack[0] == 0x10                     || (pack = 0));
+      WARNTRUE(ack[1] == DEV::CMD_START           || (pack = 0));
+      WARNTRUE(ack[2] == 0x00                     || (pack = 0));
+      WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
+      if (pack == 0)
+        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+              err, ack[0], ack[1], ack[2], ack[3]));
+    }
+    else if (ack[0] == 0x11) {
+      int pack = 1;
+      WARNTRUE(ack[0] == 0x11 || (pack = 0));
+      WARNTRUE(ack[1] == 0x03 || (pack = 0));
+      if (pack == 0)
+        D(2,("err=%i ack=%02x%02x\n", 
+              err, ack[0], ack[1]));
+    }
+  }
   return err;
 CHK_ERR:
   if (err > 0)
@@ -451,27 +479,33 @@ CHK_ERR:
 }
 
 template <typename DEV>
-int PROTOBCM<DEV>::rd_ADC(int* arr, int init_size, unsigned int start_page, unsigned int end_page){ 
+int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned int end_page){
   int err = -1;
   uint8_t ack[1034];
   int cnt;
-  int cnt_adc = (end_page - start_page) < 0 ? 
-    start_page - end_page : end_page - start_page;
-  int page = 0;
-  int rep = 1; 
-  int size = init_size;
-  REP:
-  D(3,("read_ADC %i %i\n", start_page, end_page));
-  CHK(err = send_com(DEV::CMD_RDADC, 0, start_page, end_page));
-  for (cnt = 1 + cnt_adc; cnt > 0; --cnt) {
-    CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
+  int cnt_adc;
+  int page = start_page;
+  int rep = 2;
+  int current_arr_point = 0;
+REP:
+  cnt_adc = (end_page - page) < 0 ?
+    page - end_page : end_page - page;
+  D(2,("read_ADC %i %i\n", page, end_page - 1));
+  CHK(err = send_com(DEV::CMD_RDADC, 0, page, end_page - 1));
+  for (cnt = 1 + cnt_adc ; cnt > 0; --cnt) {
+    CHK(err = recv_to(ack, sizeof(ack), 1000/*, 0*/));
     if (err == 0 && rep > 0) {
       D(2,("repeat %i PROTOBCM<>::read_ADC %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
-    CHKTRUE(err == DEV::CONSTANTS::ACK_LENGTH || err == DEV::CONSTANTS::ADC_LENGTH);
-    CHKTRUE(ack[0] == 0xF1 || ack[0] == 0x10);
+    CHKTRUE(err == DEV::CONSTANTS::ACK_LENGTH ||
+        err == DEV::CONSTANTS::ADC_LENGTH ||
+        err == DEV::CONSTANTS::CONF_LENGTH);
+    CHKTRUE(ack[0] == 0xF1 ||
+        ack[0] == 0x10 ||
+        ack[0] == 0x11
+        );
     if (ack[0] == 0x10) {
       int pack = 1;
       WARNTRUE(ack[0] == 0x10                     || (pack = 0));
@@ -482,21 +516,28 @@ int PROTOBCM<DEV>::rd_ADC(int* arr, int init_size, unsigned int start_page, unsi
         D(2,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
     }
+    else if (ack[0] == 0x11) {
+      int pack = 1;
+      WARNTRUE(ack[0] == 0x11 || (pack = 0));
+      WARNTRUE(ack[1] == 0x03 || (pack = 0));
+      if (pack == 0)
+        D(2,("err=%i ack=%02x%02x\n", 
+              err, ack[0], ack[1]));
+    }
     else if (ack[0] == 0xf1) {
-      D(2, ("got adc package!\n"));
+      D(2, ("got adc package! page #%d\n", page));
       int pack = 1;
       WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
       WARNTRUE(ack[1] == 0x08                     || (pack = 0));
       if (pack == 0)
         D(2,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
-      int i, j;
-      for (i = 0, j = 10; i < init_size; i++, j += 2){
-        arr[i] = (ack[j] << 8) | (ack[j+1]);
+      for (int j = 10; j < 1034 &&
+          current_arr_point < size; j += 2){
+        arr[current_arr_point++] = (ack[j] << 8) | (ack[j+1] & 0xFF);
       }
-      size = (size > 512) ? size - 512 : 0;
       page++;
-      D(4,("val %i(%04x)\n", ack[10], ack[11]));
+      D(4,("val %i(%04x)\n", ack[10], ack[10]));
     }
   }
   return err;
