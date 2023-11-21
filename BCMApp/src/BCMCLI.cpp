@@ -4,12 +4,14 @@
 #include <thread>
 #include <chrono>
 
-#include "PROTOHI.h"
+
 #include "BCMDEV.h"
 #include "PROTOBCM.h"
+#include "PROTOHI.h"
+#include "chk.h"
 
-int debug_level = 4;
 const char* arg0;
+int debug_level = 4;
 
 void Usage()
 {
@@ -38,12 +40,14 @@ void Usage()
 
 #define KEY(key) strcmp(#key, argv[arg]) == 0
 
+using Device = PROTOHI<BCMDEV, PROTOBCM>;
+
 int main(int argc, char** argv){
   int err = -1;
-  PROTOHI<BCMDEV, PROTOBCM> bcm;
+  Device bcm;
   struct CFG {
 		int start_mode = 1; // 0 - external, 1 - internal
-		int k_gain = 24; 
+		int k_gain = 24;
     int ndel0 = 1;
   } CFG;
   arg0 = argv[0];
@@ -95,10 +99,44 @@ int main(int argc, char** argv){
 			printf("reg %i = 0x%04x(%i)\n", r, v, v);
 			++arg;
 		}
-		else {
-			printf("Error at arg %i = %s\n", arg, argv[arg]);
-			Usage();
-		}
+		else if(KEY(-set)) {
+			int a,b,c,d;
+			char buf[80];
+			char rot[] = "-/|\\";
+			CHKTRUEMESG(sscanf(argv[arg+1], "%i.%i.%i.%i", &a, &b, &c, &d) == 4, ("Error: %s %s", argv[arg], argv[arg+1]));
+			sprintf(buf, "%i.%i.%i.%i", a,b,c,d);
+			printf("set ip %s\n", buf);
+			CHK(err = bcm.write_register(Device::INFO::REG_IPWR, 1));
+			CHK(err = bcm.write_register(Device::INFO::REG_WRIPHI, (a<<8)|b));
+			CHK(err = bcm.write_register(Device::INFO::REG_WRIPLO, (c<<8)|d));
+			CHK(err = bcm.execute_command(Device::INFO::CMD_FLASHWR));
+			for(a = 9; a > 0; --a) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				printf("\r   %c  ", rot[a % (sizeof(rot)-1)]);
+				fflush(stdout);
+			}
+			printf("\r       \r");
+			CHK(err = bcm.execute_command(Device::INFO::CMD_FLASHRD));
+			++arg;
+    }
+    else if(KEY(-commit)) {
+      uint32_t hi, lo;
+      char host[80];
+      CHK(err = bcm.read_register(Device::INFO::REG_BUFIPHI, &hi));
+      CHK(err = bcm.read_register(Device::INFO::REG_BUFIPLO, &lo));
+      printf("commit ip %i.%i.%i.%i\n", hi >> 8, hi & 0xff, lo >> 8, lo & 0xff);
+      CHK(err = bcm.execute_command(Device::INFO::CMD_IPREWR));
+      sprintf(host, "%i.%i.%i.%i", hi >> 8, hi & 0xff, lo >> 8, lo & 0xff);
+      CHK(err = bcm.connect(host, 2195));
+      D(0, ("connect = %s\n", err >= 0 ? "success" : "fail"));
+      CHKTRUE(err = bcm.is_connected());
+      D(0, ("connected = %i\n", err));
+      CHK(err = bcm.write_register(Device::INFO::REG_IPWR, 0));
+    }
+    else {
+      printf("Error at arg %i = %s\n", arg, argv[arg]);
+      Usage();
+    }
   }
   return 0;
   if(0){

@@ -1,11 +1,20 @@
-#include "PROTOBCM.h"
+#ifndef PROTOHI_H
+#define PROTOHI_H
+
+#include "chk.h"
+
+extern int debug_level;
 
 template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
   public:
+    using INFO = DEV;
     PROTOHI();
     int get_ADC_buffer(double* buffer, int size);
-    int read_register(unsigned int regn, 
-        unsigned int *param); 
+    int read_register(unsigned int regn,
+        unsigned int *param);
+    int write_register(unsigned int regn,
+        unsigned int param);
+    int execute_command(unsigned int com);
     int set_K_gain(unsigned int value);
     int set_start_mode(bool mode);
     int connect(const char* _hostname, int _port);
@@ -37,8 +46,8 @@ template <typename DEV, template<typename> typename PROTOCOL>
 PROTOHI<DEV, PROTOCOL>::PROTOHI() { }
 
 template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::start_generator() 
-{ 
+int PROTOHI<DEV, PROTOCOL>::start_generator()
+{
   int err = -1;
   int frequency = 0;
   int retries;
@@ -116,7 +125,7 @@ template <typename DEV, template<typename> typename PROTOCOL>
 int PROTOHI<DEV, PROTOCOL>::set_start_mode(bool mode){
   int err = -1;
   unsigned int value = mode << 1;
-  CHK(err = connection.wrrd_reg(DEV::REG::R0, &value)); 
+  CHK(err = connection.wrrd_reg(DEV::REG::R0, &value));
   D(2, ("Mode start is set to: %d\n", value));
   return err;
 CHK_ERR:
@@ -145,7 +154,6 @@ int PROTOHI<DEV, PROTOCOL>::set_K_gain(unsigned int value)
   unsigned int checking_value;
   CHK(err = connection.wrrd_reg(DEV::REG::R2, &value));
   D(2, ("K_gain is set to: %d\n", value));
-
 CHK_ERR:
   return err;
 }
@@ -164,7 +172,7 @@ CHK_ERR:
 
 
 template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::read_register(unsigned int regn, 
+int PROTOHI<DEV, PROTOCOL>::read_register(unsigned int regn,
     unsigned int *param)
 {
   int err = -1;
@@ -174,6 +182,17 @@ CHK_ERR:
   return err;
 }
 
+
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::write_register(unsigned int regn,
+    unsigned int param)
+{
+  int err = -1;
+  CHK(err = connection.wr_reg(regn, param));
+  D(2, ("Register has been overwritten!"));
+CHK_ERR:
+  return err;
+}
 
 template <typename DEV, template<typename> typename PROTOCOL>
 template <typename CFG>
@@ -213,3 +232,15 @@ CHK_ERR:
   return err;
 }
 
+
+template <typename DEV, template<typename> typename PROTOCOL>
+int PROTOHI<DEV, PROTOCOL>::execute_command(unsigned int com)
+{
+  int err = -1;
+  CHK(err = connection.exec_com(com));
+  D(2, ("Command has been executed!"));
+CHK_ERR:
+  return err;
+}
+
+#endif

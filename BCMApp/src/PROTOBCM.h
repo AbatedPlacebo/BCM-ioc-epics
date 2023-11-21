@@ -48,6 +48,7 @@ class PROTOBCM {
     int reset_measurement_cnt();
     int is_connected() const;
     int wrrd_reg(unsigned int regn, unsigned int *param);
+    int exec_com(unsigned int regn);
 };
 
 #include "chk.h"
@@ -666,4 +667,13 @@ CHK_ERR:
   return -1;
 }
 
+
+template <typename DEV>
+int PROTOBCM<DEV>::exec_com(unsigned int cmd) {
+			int err = -1;
+			CHK(err = send_com(cmd, 0, 0));
+			CHK(err = ack_to(cmd, 0, 100, 1, 0));
+CHK_ERR:
+			return err;
+}
 #endif

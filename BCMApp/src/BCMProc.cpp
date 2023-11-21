@@ -34,15 +34,14 @@
 #include "chk_dt.h"
 #include "chk.h"
 
+#define debug_level debug_level_ioc
+extern int debug_level_ioc;
+
 // Driver library
 #include "PROTOHI.h"
 #include "BCMDEV.h"
 #include "PROTOBCM.h"
 
-
-//#define debug_level debug_level_ioc
-//extern int debug_level_ioc;
-int debug_level = 2;
 
 #define ALIAS(name) name
 
@@ -51,7 +50,6 @@ int debug_level = 2;
 #define K2_EVENT 4
 #define CONNECT_EVENT 5
 #define CONNECTED_EVENT 6
-
 
 #ifndef EPICS_VERSION_INT
 #define VERSION_INT(v,r,m,p) (((v) << 24) | ((r) << 16) | ((m) << 8) | (p))
@@ -185,6 +183,15 @@ static void BCM_run(void* arg)
   WFM(BCM.arrXt).linspace(WAVEFORM_LENGTH_TIME, WAVEFORM_LENGTH_TIME, WFM(BCM.arr).size());
   D(0, ("TRACE\n"));
   while(ioc_work) {
+    if (BCM.connect != BCM.connected){
+      D(0, ("Failed to connect! Status: %d\n", Device.is_connected()));
+      D(0, ("Timeout %d commencing!\n", timeout));
+      epicsThreadSleep(timeout);
+      CHK(Device.connect(BCM.hostname, BCM.portno));
+      BCM.connected = Device.is_connected();
+      timeout = (timeout <= 10) ? timeout + 1 : timeout;
+      epicsEventSignal(curEvent);
+    }
     if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
       D(3,("произошло обновление pv для записи или мониторинга\n"));
     }
@@ -192,9 +199,11 @@ static void BCM_run(void* arg)
       int state = BCM.connect;
       if (state == true){
         CHK(Device.connect(BCM.hostname, BCM.portno));
-        Device.set_start_mode(BCM.remote_start);
+        CHK(Device.set_start_mode(BCM.remote_start));
+        CHK(Device.set_K_gain(BCM.gain));
+        BCM.gainK = BCM.gain * 2;
         BCM.connected = Device.is_connected();
-        post_event(K_EVENT);
+        post_event(K2_EVENT);
       }
       else {
         Device.disconnect();
@@ -202,11 +211,6 @@ static void BCM_run(void* arg)
       }
       D(0, ("Connection: %d\n", BCM.connected));
       post_event(CONNECTED_EVENT);
-    }
-    if(epicsEventTryWait(curEvent = BCM.gain_event) == epicsEventWaitOK) {
-      Device.set_K_gain(BCM.gain);
-      BCM.gainK = BCM.gain * 2;
-      post_event(K2_EVENT);
     }
     if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
       //			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
@@ -237,12 +241,8 @@ static void BCM_run(void* arg)
     //	ioc_work = 0;
     continue;
 CHK_ERR:
-      D(0, ("Failed to connect! Status: %d\n", Device.is_connected()));
-      D(0, ("Timeout %d commencing!\n", timeout));
-      epicsThreadSleep(timeout);
-      timeout = (timeout < 5) ? timeout + 1 : timeout;
-      CHK(Device.connect(BCM.hostname, BCM.portno));
-      epicsEventSignal(curEvent);
+    Device.disconnect();
+    BCM.connected = Device.is_connected();
   }
   D(0, ("TRACE\n"));
   if(signal_exit) {
@@ -261,7 +261,6 @@ int wait_exit()
   }
   return 0;
 }
-
 
 #endif
 

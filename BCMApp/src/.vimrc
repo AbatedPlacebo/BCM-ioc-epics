@@ -2,8 +2,9 @@ source ../../.vimrc_common
 set path+=../..
 set path+=../../inc
 set path+=../../src
-set fileencodings=utf-8
+set path+=../../genlib
 set path+=/usr/lib/epics/include
+set fileencodings=utf-8
 if has("cscope")
 if filereadable("../../cscope.out")
 "set cscopequickfix=s-,c-,d-,i-,t-,e-
