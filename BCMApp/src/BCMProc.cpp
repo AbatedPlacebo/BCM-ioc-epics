@@ -28,6 +28,8 @@
 
 #include "waveFormMap.h"
 
+#include "BCMMath.h"
+
 #endif
 
 #include "BCM.h"
@@ -117,7 +119,7 @@ TBCM BCM;
 
 PROTOHI<BCMDEV, PROTOBCM> Device;
 
-epicsEventId curEvent;
+epicsEventId curEvent = nullptr;
 
 int timeout = 1;
 
@@ -190,7 +192,8 @@ static void BCM_run(void* arg)
       CHK(Device.connect(BCM.hostname, BCM.portno));
       BCM.connected = Device.is_connected();
       timeout = (timeout <= 10) ? timeout + 1 : timeout;
-      epicsEventSignal(curEvent);
+      if (curEvent != nullptr)
+        epicsEventSignal(curEvent);
     }
     if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
       D(3,("произошло обновление pv для записи или мониторинга\n"));
@@ -234,6 +237,7 @@ static void BCM_run(void* arg)
       if (connecting == 1){
         Device.start_measurement();
         Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
+        calcQ(&BCM);
         post_event(DATA_EVENT);
       }
     }
@@ -244,6 +248,7 @@ CHK_ERR:
     Device.disconnect();
     BCM.connected = Device.is_connected();
   }
+  Device.disconnect();
   D(0, ("TRACE\n"));
   if(signal_exit) {
     term_echo_on();

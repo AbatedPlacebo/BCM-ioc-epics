@@ -20,6 +20,10 @@
 #define DECL_BCM(decl_zone) \
   decl_zone##_ARR(double,arr,OSCSIZE,-2048,2048,DATA_EVENT,{0}) \
   decl_zone##_ARR_RO(double,arrXt,OSCSIZE,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab0,16384,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab1,16384,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab2,16384,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab3,16384,-2048,2048,DATA_EVENT) \
   decl_zone##_VAR(int,gain,0,24,K_EVENT,1) \
   decl_zone##_VAR_RO(int,gainK,0,1000000,K2_EVENT) \
   decl_zone##_STR(hostname, 20, "192.168.147.9") \

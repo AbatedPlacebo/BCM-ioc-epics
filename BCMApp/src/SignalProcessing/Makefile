@@ -1,20 +1,25 @@
-CXX_FLAGS = -lm -lgsl
-all: main
+CXX_FLAGS = -I .
+CXX_FLAGS += -lm -lgsl
+VPATH = .
 
-main.o: main.o.d
+# ADD MORE WARNINGS!
+WARNING := -Wall -Wextra
 
-main: main.o 
-	g++ $^ $(CXX_FLAGS) -o $@
+all: main 
+
+%.o: %.o.d 
+
+main: $(patsubst %.cpp,%.o,$(wildcard *.cpp)) 
+	g++ $(CXX_FLAGS) $^ -o $@
 
 %.o: %.c Makefile
-	gcc  -c -o $@  $<
+	g++  $(CXX_FLAGS) -c -o $@  $<
 
 %.o.d: %.c Makefile
-	gcc -MM -MT $(@:.d=) -MT $(@)  $< > $@
+	g++ $(CXX_FLAGS) $(WARNING) -MM -MT $(@:.d=) -MT $(@)  $< > $@
 
 -include *.d
-
+                                                                                                                                                                                          
 clean:
 	rm -f *.o *.o.d
 	rm -f main tags
-

@@ -3,7 +3,6 @@
 
 #include <cstddef>
 
-
 template <typename T, int DATA_SIZE>
 class wave_form_map {
 		T* storage;
@@ -118,7 +117,6 @@ class wave_form_map {
 
 			return v;
 		}
-
 };
 
 #include<array>

@@ -1,6 +1,5 @@
-#ifndef BCM_MATH_H
-#define BCM_MATH_H
-
+#ifndef OSCINTERP_H
+#define OSCINTERP_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -9,69 +8,18 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_spline.h>
-#include "BCM.h"
 
 #define POINTS_PER_PARAB 10
 #define INTERP_POINTS 5
 #define MIN_TRIGGER 100
 #define GEN_INT_POINTS 100
 
-
-double calcQ(TBCM* BCM){
-	if (BCM->wnd1 > BCM->wnd2){
-		double tmp = BCM->wnd1;
-		BCM->wnd1 = BCM->wnd2;
-		BCM->wnd2 = tmp;
-	}
-	double integral = 0.0;
-	int i;
-	double dt = WAVEFORM_LENGTH_TIME;
-	int beg = BCM->wnd1 / dt;
-	int end = BCM->wnd2 / dt;
-	for (i = beg; i < end; i += 1){
-		integral += fabs(BCM->arr[i]) * dt;
-	}
-	return BCM->QK * pow(10.0, -BCM->gain * BCM->gainK / 20.0) * integral;
-}
-
-double timeQ(TBCM* BCM){
-	if (BCM->wnd1 > BCM->wnd2){
-		double tmp = BCM->wnd1;
-		BCM->wnd1 = BCM->wnd2;
-		BCM->wnd2 = tmp;
-	}
-	double dt = WAVEFORM_LENGTH_TIME;
-	int beg = BCM->wnd1 / dt;
-	int end = BCM->wnd2 / dt;
-	// j - num of maxs
-	int i;
-	double extT = 0;
-	BCM->timeQY = 0;
-	for (i = beg; (i < end - 1); i++){
-		int diff = BCM->arr[i+1] - BCM->arr[i];
-		if (BCM->minmax == 0)
-		{
-			if (diff > 0 && BCM->arr[i] < BCM->timeQY){
-				extT = i;
-				BCM->timeQY = BCM->arr[i];
-			}
-		}
-		else if (diff < 0 && BCM->arr[i] > BCM->timeQY){
-			extT = i;
-			BCM->timeQY = BCM->arr[i];
-		}
-	}
-	return extT * WAVEFORM_LENGTH_TIME;
-}
-
 template<typename T>
-int find_roots(TBCM* BCM, T* roots)
+int find_roots(T* data, int size, T* roots)
 {
   int root_count = 0;
   int previous_sign, current_sign;
   int root_condition = 0;
-  double* data = BCM->arr;
-  int size = BCM->arr_ne;
   previous_sign = current_sign = GSL_SIGN(data[0]);
   roots[0] = 0;
   for (int i = 0; i < size; i++)
@@ -117,12 +65,12 @@ int interp_points(T* data, T* roots, int size, T* x, T* y, int i)
 }
 
 template<typename T>
-int interpolate(WFM4type(TBCM::parab) y4, WFMtype(TBCM::arr) data, TBCM* BCM){
+int interpolate(WFM4type(BCM.parab) y4){
   int points_cnt = POINTS_PER_PARAB * INTERP_POINTS;
   T rootsx[INTERP_POINTS];
   T x[points_cnt];
   T y[points_cnt];
-  int Nroots = find_roots(BCM, rootsx);
+  int Nroots = find_roots(data, size, rootsx);
   gsl_interp_accel *acc;
   const gsl_interp_type *t = gsl_interp_cspline;
   gsl_spline *spline;
@@ -131,21 +79,22 @@ int interpolate(WFM4type(TBCM::parab) y4, WFMtype(TBCM::arr) data, TBCM* BCM){
   for (int i = 0; i < Nroots - 1; i++)
   {
     acc = gsl_interp_accel_alloc();
-    int N = interp_points(data.storage, rootsx, Nroots, x, y, i);
+    int N = interp_points(data, rootsx, Nroots, x, y, i);
     if (N == 0)
       continue;
     currentx += N;
     spline = gsl_spline_alloc (t, N);
     gsl_spline_init(spline, x, y, N);
-    for (int j = 0; i <= GEN_INT_POINTS; i++)
+    for (int i = 0; i <= GEN_INT_POINTS; i++)
     {
-            y4[i][j] = gsl_spline_eval (spline, xi, acc);
+       = (1 - i / 100.0) * x[0] + (i / 100.0) * x[N-1];
+      yi = gsl_spline_eval (spline, xi, acc);
+      printf ("%g %g\n", xi, yi);
     }
     gsl_spline_free (spline);
     gsl_interp_accel_free (acc);
   }
   return 0;
 }
-
 
 #endif
