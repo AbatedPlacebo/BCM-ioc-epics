@@ -48,10 +48,8 @@ extern int debug_level_ioc;
 #define ALIAS(name) name
 
 #define DATA_EVENT 2
-#define K_EVENT 3
-#define K2_EVENT 4
-#define CONNECT_EVENT 5
-#define CONNECTED_EVENT 6
+#define CFG_EVENT 2
+
 
 #ifndef EPICS_VERSION_INT
 #define VERSION_INT(v,r,m,p) (((v) << 24) | ((r) << 16) | ((m) << 8) | (p))
@@ -76,6 +74,9 @@ extern int debug_level_ioc;
 #define EXTRA_PHAS_bin_ro field(PHAS,3)
 #define EXTRA_PHAS_mbb_ro field(PHAS,5)
 #define EXTRA_PHAS_arr_ro field(PHAS,4)
+#define EXTRA_PHAS_ready_cfg field(PHAS,20)
+#define EXTRA_PHAS_ready field(PHAS,20)
+
 
 /* PLACE_EXTRA_INSERT */
 
@@ -206,14 +207,13 @@ static void BCM_run(void* arg)
         CHK(Device.set_K_gain(BCM.gain));
         BCM.gainK = BCM.gain * 2;
         BCM.connected = Device.is_connected();
-        post_event(K2_EVENT);
       }
       else {
         Device.disconnect();
         BCM.connected = Device.is_connected();
       }
       D(0, ("Connection: %d\n", BCM.connected));
-      post_event(CONNECTED_EVENT);
+      post_event(CFG_EVENT);
     }
     if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
       //			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
