@@ -23,7 +23,8 @@
   decl_zone##_BIN_RO(connected, CFG_EVENT) \
   decl_zone##_STR(hostname, 20, "192.168.147.9") \
   decl_zone##_VAR(int,portno,0,65535,CFG_EVENT,2195) \
-  decl_zone##_VAR_RO(int,ready_cfg,0,100000000,DATA_EVENT) /* триггер параметров конфига, меняется последним*/ \
+  decl_zone##_VAR(int,error,0,65535,CFG_EVENT,2195) \
+  decl_zone##_VAR(int,ready_cfg,0,100000000,DATA_EVENT, 0) /* триггер параметров конфига, меняется последним*/ \
   /* параметры измерения */ \
   decl_zone##_VAR(int,gain,0,24,CFG_EVENT,1)  \
   decl_zone##_BIN(remote_start, DATA_EVENT, 0) \
