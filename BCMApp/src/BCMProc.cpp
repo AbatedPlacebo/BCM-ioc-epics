@@ -48,7 +48,14 @@ extern int debug_level_ioc;
 #define ALIAS(name) name
 
 #define DATA_EVENT 2
-#define CFG_EVENT 2
+#define CFG_EVENT 3
+
+#define PROCESS_CFG_EVENT() do { \
+  epicsEventTryWait(BCM.ready_cfg_event); \
+  post_event(CFG_EVENT); \
+  epicsEventWaitWithTimeout(BCM.ready_cfg_event, 1.0); \
+} while(0)
+
 
 
 #ifndef EPICS_VERSION_INT
@@ -122,7 +129,8 @@ PROTOHI<BCMDEV, PROTOBCM> Device;
 
 epicsEventId curEvent = nullptr;
 
-int timeout = 1;
+int timeout = 0;
+
 
 static void BCM_run(void* arg);
 
@@ -187,33 +195,35 @@ static void BCM_run(void* arg)
   D(0, ("TRACE\n"));
   while(ioc_work) {
     if (BCM.connect != BCM.connected){
-      D(0, ("Failed to connect! Status: %d\n", Device.is_connected()));
-      D(0, ("Timeout %d commencing!\n", timeout));
-      epicsThreadSleep(timeout);
-      CHK(Device.connect(BCM.hostname, BCM.portno));
-      BCM.connected = Device.is_connected();
-      timeout = (timeout <= 10) ? timeout + 1 : timeout;
-      if (curEvent != nullptr)
-        epicsEventSignal(curEvent);
-    }
-    if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
-      D(3,("произошло обновление pv для записи или мониторинга\n"));
-    }
-    if(epicsEventTryWait(curEvent = BCM.connect_event) == epicsEventWaitOK) {
-      int state = BCM.connect;
-      if (state == true){
+      if (BCM.connect){
+        if (timeout > 0) {
+          timeout = (timeout == 0) ? timeout + (BCM.error + 1) * 2 : timeout--;
+          epicsEventWaitWithTimeout(work_event, 1.0);
+          continue;
+        }
         CHK(Device.connect(BCM.hostname, BCM.portno));
         CHK(Device.set_start_mode(BCM.remote_start));
         CHK(Device.set_K_gain(BCM.gain));
         BCM.gainK = BCM.gain * 2;
         BCM.connected = Device.is_connected();
+        BCM.error++;
+        if (curEvent != nullptr)
+          epicsEventSignal(curEvent);
       }
       else {
         Device.disconnect();
-        BCM.connected = Device.is_connected();
+        BCM.connected = 0;
+        BCM.error = 0;
       }
-      D(0, ("Connection: %d\n", BCM.connected));
-      post_event(CFG_EVENT);
+    }
+    PROCESS_CFG_EVENT();
+    if(!BCM.connected) {
+      epicsEventWaitWithTimeout(work_event, 1.0);
+      continue; // единственное что мы можем здесь сделать это проверить необходимость подключения
+    }
+
+    if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
+      D(3,("произошло обновление pv для записи или мониторинга\n"));
     }
     if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
       //			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
@@ -239,14 +249,16 @@ static void BCM_run(void* arg)
         Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
         calcQ(&BCM);
         post_event(DATA_EVENT);
+        post_event(CFG_EVENT);
       }
     }
-    //if(count>10)
-    //	ioc_work = 0;
+    BCM.error = 0;
     continue;
 CHK_ERR:
     Device.disconnect();
-    BCM.connected = Device.is_connected();
+    BCM.connected = 0;
+    BCM.error++;
+    post_event(CFG_EVENT);
   }
   Device.disconnect();
   D(0, ("TRACE\n"));
@@ -277,4 +289,5 @@ DECL_BCM(DECL_GLOBAL)
   //DECL_VAR_FUNC(int,command,0,3)
   //MEAS_LIST(CA_MEAS_DATA)
 DECL_FUNC_i(BCM_init)
+
 
