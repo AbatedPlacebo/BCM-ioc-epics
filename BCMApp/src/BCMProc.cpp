@@ -27,8 +27,8 @@
 #include <iocLog.h>
 
 #include "waveFormMap.h"
-
 #include "BCMMath.h"
+#include "Timer.h"
 
 #endif
 
@@ -129,7 +129,8 @@ PROTOHI<BCMDEV, PROTOBCM> Device;
 
 epicsEventId curEvent = nullptr;
 
-int timeout = 0;
+Timer timeoutConnection;
+Timer lastConnectionTime;
 
 
 static void BCM_run(void* arg);
@@ -196,11 +197,14 @@ static void BCM_run(void* arg)
   while(ioc_work) {
     if (BCM.connect != BCM.connected){
       if (BCM.connect){
-        if (timeout > 0) {
-          timeout = (timeout == 0) ? timeout + (BCM.error + 1) * 2 : timeout--;
+        if (lastConnectionTime < timeoutConnection) {
           epicsEventWaitWithTimeout(work_event, 1.0);
+          lastConnectionTime += 1;
+          D(0, ("BCM.error = %d\n", BCM.error));
           continue;
         }
+        lastConnectionTime = 0;
+        timeoutConnection = (BCM.error + 1) * 2;
         CHK(Device.connect(BCM.hostname, BCM.portno));
         CHK(Device.set_start_mode(BCM.remote_start));
         CHK(Device.set_K_gain(BCM.gain));
