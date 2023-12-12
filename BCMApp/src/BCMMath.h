@@ -13,55 +13,57 @@
 
 #define POINTS_PER_PARAB 10
 #define INTERP_POINTS 5
-#define MIN_TRIGGER 100
+#define MIN_TRIGGER 10 
 #define GEN_INT_POINTS 100
 
 
 double calcQ(TBCM* BCM){
-	if (BCM->wnd1 > BCM->wnd2){
-		double tmp = BCM->wnd1;
-		BCM->wnd1 = BCM->wnd2;
-		BCM->wnd2 = tmp;
-	}
-	double integral = 0.0;
-	int i;
-	double dt = WAVEFORM_LENGTH_TIME;
-	int beg = BCM->wnd1 / dt;
-	int end = BCM->wnd2 / dt;
-	for (i = beg; i < end; i += 1){
-		integral += fabs(BCM->arr[i]) * dt;
-	}
-	return BCM->QK * pow(10.0, -BCM->gain * BCM->gainK / 20.0) * integral;
+  if (BCM->wnd1 > BCM->wnd2){
+    double tmp = BCM->wnd1;
+    BCM->wnd1 = BCM->wnd2;
+    BCM->wnd2 = tmp;
+  }
+  double integral = 0.0;
+  int i;
+  double dt = WAVEFORM_LENGTH_TIME;
+  int beg = BCM->wnd1 / dt;
+  int end = BCM->wnd2 / dt;
+  for (i = beg; i < end; i += 1){
+    integral += fabs(BCM->arr[i]) * dt;
+  }
+  BCM->Q = BCM->QK * pow(10.0, -BCM->gain * BCM->gainK / 20.0) * integral;
+  return BCM->Q;
 }
 
 double timeQ(TBCM* BCM){
-	if (BCM->wnd1 > BCM->wnd2){
-		double tmp = BCM->wnd1;
-		BCM->wnd1 = BCM->wnd2;
-		BCM->wnd2 = tmp;
-	}
-	double dt = WAVEFORM_LENGTH_TIME;
-	int beg = BCM->wnd1 / dt;
-	int end = BCM->wnd2 / dt;
-	// j - num of maxs
-	int i;
-	double extT = 0;
-	BCM->timeQY = 0;
-	for (i = beg; (i < end - 1); i++){
-		int diff = BCM->arr[i+1] - BCM->arr[i];
-		if (BCM->minmax == 0)
-		{
-			if (diff > 0 && BCM->arr[i] < BCM->timeQY){
-				extT = i;
-				BCM->timeQY = BCM->arr[i];
-			}
-		}
-		else if (diff < 0 && BCM->arr[i] > BCM->timeQY){
-			extT = i;
-			BCM->timeQY = BCM->arr[i];
-		}
-	}
-	return extT * WAVEFORM_LENGTH_TIME;
+  if (BCM->wnd1 > BCM->wnd2){
+    double tmp = BCM->wnd1;
+    BCM->wnd1 = BCM->wnd2;
+    BCM->wnd2 = tmp;
+  }
+  double dt = WAVEFORM_LENGTH_TIME;
+  int beg = BCM->wnd1 / dt;
+  int end = BCM->wnd2 / dt;
+  // j - num of maxs
+  int i;
+  double extT = 0;
+  BCM->timeQY = 0;
+  for (i = beg; (i < end - 1); i++){
+    int diff = BCM->arr[i+1] - BCM->arr[i];
+    if (BCM->minmax == 0)
+    {
+      if (diff > 0 && BCM->arr[i] < BCM->timeQY){
+        extT = i;
+        BCM->timeQY = BCM->arr[i];
+      }
+    }
+    else if (diff < 0 && BCM->arr[i] > BCM->timeQY){
+      extT = i;
+      BCM->timeQY = BCM->arr[i];
+    }
+  }
+  BCM->timeQ = extT * WAVEFORM_LENGTH_TIME;
+  return extT * WAVEFORM_LENGTH_TIME;
 }
 
 template<typename T>
@@ -117,7 +119,7 @@ int interp_points(T* data, T* roots, int size, T* x, T* y, int i)
 }
 
 template<typename T>
-int interpolate(WFM4type(TBCM::parab) y4, WFMtype(TBCM::arr) data, TBCM* BCM){
+int interpolate(TBCM* BCM){
   int points_cnt = POINTS_PER_PARAB * INTERP_POINTS;
   T rootsx[INTERP_POINTS];
   T x[points_cnt];
@@ -131,16 +133,21 @@ int interpolate(WFM4type(TBCM::parab) y4, WFMtype(TBCM::arr) data, TBCM* BCM){
   for (int i = 0; i < Nroots - 1; i++)
   {
     acc = gsl_interp_accel_alloc();
-    int N = interp_points(data.storage, rootsx, Nroots, x, y, i);
+    int N = interp_points(BCM->arr, rootsx, Nroots, x, y, i);
     if (N == 0)
       continue;
     currentx += N;
     spline = gsl_spline_alloc (t, N);
     gsl_spline_init(spline, x, y, N);
-    for (int j = 0; i <= GEN_INT_POINTS; i++)
+    WFM4(BCM->parabx)[i].resize(GEN_INT_POINTS + 1);
+    WFM4(BCM->parab)[i].resize(GEN_INT_POINTS + 1);
+    for (int j = 0; j <= GEN_INT_POINTS; j++)
     {
-            y4[i][j] = gsl_spline_eval (spline, xi, acc);
+      xi = (1 - j / 100.0) * x[0] + (j / 100.0) * x[N-1];
+      WFM4(BCM->parabx)[i][j] = xi;
+      WFM4(BCM->parab)[i][j] = gsl_spline_eval (spline, xi, acc);
     }
+    WFM4(BCM->parabx)[i] *= WAVEFORM_LENGTH_TIME;
     gsl_spline_free (spline);
     gsl_interp_accel_free (acc);
   }

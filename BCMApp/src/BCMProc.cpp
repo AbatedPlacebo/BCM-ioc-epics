@@ -131,6 +131,7 @@ epicsEventId curEvent = nullptr;
 
 Timer timeoutConnection;
 Timer lastConnectionTime;
+Timer lastMeasurement;
 
 
 static void BCM_run(void* arg);
@@ -229,11 +230,6 @@ static void BCM_run(void* arg)
     if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
       D(3,("произошло обновление pv для записи или мониторинга\n"));
     }
-    if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
-      //			BCM.Q = calcQ(BCM.arr, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.QK, BCM.gain, BCM.gainK);
-      //			BCM.timeQ = timeQ(BCM.arr, &BCM.timeQY, BCM.wndLen, BCM.wnd1, BCM.wnd2, BCM.minmax);
-      BCM.update_stats = 0;
-    }
     if(epicsEventTryWait(curEvent = BCM.wndBeg_event) == epicsEventWaitOK ||
         epicsEventTryWait(curEvent = BCM.wndLen_event) == epicsEventWaitOK) {
       if (BCM.wndBeg > BCM.wndLen){
@@ -242,18 +238,33 @@ static void BCM_run(void* arg)
         BCM.wndLen = temp;
       }
     }
-    //
-    //epicsEventWaitWithTimeout(work_event, 1.0);
-    //stab.injection = count;
     count++;
-    if((count % 3) == 0) {
-      int connecting = BCM.connected;
-      if (connecting == 1){
-        Device.start_measurement();
-        Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
-        calcQ(&BCM);
-        post_event(DATA_EVENT);
-        post_event(CFG_EVENT);
+    if (epicsEventTryWait(curEvent = BCM.osc_mode_event) == epicsEventWaitOK){
+      if (BCM.osc_mode == 1) {
+        int connecting = BCM.connected;
+        if (connecting == 1){
+          Device.start_measurement();
+          Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
+          lastMeasurement = 0;
+          calcQ(&BCM);
+          timeQ(&BCM);
+          interpolate<double>(&BCM);
+          BCM.osc_mode = 0;
+          BCM.osc_mode_ready++;
+          post_event(DATA_EVENT);
+          post_event(CFG_EVENT);
+        }
+      }
+      if (BCM.osc_auto) {
+        Timer timer;
+        timer = 0;
+        if (timer.diff(lastMeasurement) > BCM.osc_auto_deadtime) {
+          BCM.osc_mode = 1;
+          post_event(CFG_EVENT);
+          epicsEventWaitWithTimeout(BCM.osc_mode_event, 0.50);
+          epicsEventWaitWithTimeout(BCM.osc_mode_event, 0.50);
+          continue;
+        }
       }
     }
     BCM.error = 0;
