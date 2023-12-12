@@ -97,7 +97,6 @@ class wave_form_map {
 			}
 			if(w > 0)
 				v /= w;
-
 			return v;
 		}
 

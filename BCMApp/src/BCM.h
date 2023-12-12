@@ -36,7 +36,10 @@
   decl_zone##_VAR(double,wndLen,0.0,320.0,DATA_EVENT,320.0) \
   decl_zone##_VAR(double,QK,0,100000,DATA_EVENT,1) \
   /* результат измерения обычно здесть только _RO переменные */ \
-  decl_zone##_VAR_RO(int,ready,0,100000000,DATA_EVENT) /* триггер результата, меняется последним*/ \
+  decl_zone##_BIN(osc_mode,CFG_EVENT, 0) /* триггер запроса результата */ \
+  decl_zone##_BIN(osc_auto,CFG_EVENT, 0) /* триггер запроса результата */ \
+  decl_zone##_VAR(int,osc_auto_deadtime, 0, 100000000, CFG_EVENT, 3) /* триггер запроса результата */ \
+  decl_zone##_VAR_RO(int,osc_mode_ready,0,100000000,DATA_EVENT) /* триггер результата, меняется последним*/ \
   decl_zone##_VAR_RO(int,gainK,0,1000000,CFG_EVENT) \
   decl_zone##_ARR_RO(double,arrXt,OSCSIZE,0,320,DATA_EVENT) \
   decl_zone##_ARR_RO(double,arr,OSCSIZE,-2048,2048,DATA_EVENT) \
@@ -47,6 +50,10 @@
   decl_zone##_ARR_RO(double,parab1,16384,-2048,2048,DATA_EVENT) \
   decl_zone##_ARR_RO(double,parab2,16384,-2048,2048,DATA_EVENT) \
   decl_zone##_ARR_RO(double,parab3,16384,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx0,16384,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx1,16384,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx2,16384,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx3,16384,0,320,DATA_EVENT) \
 
 
 
