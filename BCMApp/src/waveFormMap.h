@@ -12,6 +12,12 @@ class wave_form_map {
 		wave_form_map(T* _storage, int* _ne): storage(_storage), ne(_ne) {}
 		wave_form_map(const wave_form_map& src):storage(src.storage), ne(src.ne) {}
 
+		void operator-(const wave_form_map& src)
+		{
+			for (size_t i = 0; i < size(); ++i)
+				storage[i] -= src[i];
+		}
+
 		void operator=(const wave_form_map& src)
 		{
 			size_t _sz = resize(src.size());
@@ -49,23 +55,29 @@ class wave_form_map {
 				storage[i] *= value;
 		}
 
-		T max(size_t begin = 0, size_t end = DATA_SIZE) {
+
+		T max(size_t& begin = 0, size_t end = DATA_SIZE) {
 			T value = storage[begin];
 			if( end < size() )
 				end = size();
 			for(size_t i = begin; i < end; ++i)
-				if( value < storage[i] )
+				if(value < storage[i]){
 					value = storage[i];
+          begin = i;
+        }
 			return value;
 		}
 
-		T min(size_t begin=0, size_t end = DATA_SIZE) {
+
+		T min(size_t& begin = 0, size_t end = DATA_SIZE) {
 			T value = storage[begin];
-			if( end < size() )
+			if( end < size())
 				end = size();
 			for(size_t i = begin; i < end; ++i)
-				if( value > storage[i] )
+				if(value > storage[i]){
 					value = storage[i];
+          begin = i;
+        }
 			return value;
 		}
 

@@ -27,7 +27,6 @@
 #include <iocLog.h>
 
 #include "waveFormMap.h"
-#include "BCMMath.h"
 #include "Timer.h"
 
 #endif
@@ -43,6 +42,7 @@ extern int debug_level_ioc;
 #include "PROTOHI.h"
 #include "BCMDEV.h"
 #include "PROTOBCM.h"
+#include "BCMMath.h"
 
 
 #define ALIAS(name) name
@@ -81,7 +81,7 @@ extern int debug_level_ioc;
 #define EXTRA_PHAS_bin_ro field(PHAS,3)
 #define EXTRA_PHAS_mbb_ro field(PHAS,5)
 #define EXTRA_PHAS_arr_ro field(PHAS,4)
-#define EXTRA_PHAS_ready_cfg field(PHAS,20)
+#define EXTRA_PHAS_ready_cfg field(PHAS,24)
 #define EXTRA_PHAS_ready field(PHAS,20)
 
 
@@ -89,6 +89,7 @@ extern int debug_level_ioc;
 
 #define EXTRA_timeQ field(PREC,3) field(EGU,"us")
 #define EXTRA_Q field(PREC,3) field(EGU,"nQ")
+#define EXTRA_timeQY field(PREC,3) field(EGU,"mA")
 #define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
 
 #include"gen_db.h"
@@ -185,7 +186,6 @@ static void BCM_init(int i)
 
 static void BCM_run(void* arg)
 {
-  int count = 0;
   ioc_work = 1;
   bcm_wait_autosave(5.0);
   BCM.gainK = 2;
@@ -220,11 +220,21 @@ static void BCM_run(void* arg)
         BCM.connected = 0;
         BCM.error = 0;
       }
+      PROCESS_CFG_EVENT();
     }
-    PROCESS_CFG_EVENT();
     if(!BCM.connected) {
       epicsEventWaitWithTimeout(work_event, 1.0);
       continue; // единственное что мы можем здесь сделать это проверить необходимость подключения
+    }
+    if(epicsEventWaitWithTimeout(BCM.update_stats_event, 1.0) == epicsEventWaitOK) {
+      if (BCM.update_stats == 1){
+        interpolate<double>(&BCM);
+        timeQ(&BCM);
+        calcQ(&BCM);
+        BCM.update_stats = 0;
+        post_event(DATA_EVENT);
+      }
+      continue;
     }
 
     if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
@@ -238,17 +248,17 @@ static void BCM_run(void* arg)
         BCM.wndLen = temp;
       }
     }
-    count++;
-    if (epicsEventTryWait(curEvent = BCM.osc_mode_event) == epicsEventWaitOK){
+    if (epicsEventTryWait(curEvent = BCM.osc_mode_event) == epicsEventWaitOK ||
+        BCM.osc_auto){
       if (BCM.osc_mode == 1) {
         int connecting = BCM.connected;
         if (connecting == 1){
           Device.start_measurement();
           Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
           lastMeasurement = 0;
-          calcQ(&BCM);
-          timeQ(&BCM);
           interpolate<double>(&BCM);
+          timeQ(&BCM);
+          calcQ(&BCM);
           BCM.osc_mode = 0;
           BCM.osc_mode_ready++;
           post_event(DATA_EVENT);
@@ -258,7 +268,7 @@ static void BCM_run(void* arg)
       if (BCM.osc_auto) {
         Timer timer;
         timer = 0;
-        if (timer.diff(lastMeasurement) > BCM.osc_auto_deadtime) {
+        if (timer.diff(lastMeasurement) >= BCM.osc_auto_deadtime) {
           BCM.osc_mode = 1;
           post_event(CFG_EVENT);
           epicsEventWaitWithTimeout(BCM.osc_mode_event, 0.50);

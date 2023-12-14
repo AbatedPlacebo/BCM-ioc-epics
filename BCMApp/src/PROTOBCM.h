@@ -494,7 +494,7 @@ REP:
   D(2,("read_ADC %i %i\n", page, end_page - 1));
   CHK(err = send_com(DEV::CMD_RDADC, 0, page, end_page - 1));
   for (cnt = 1 + cnt_adc ; cnt > 0; --cnt) {
-    CHK(err = recv_to(ack, sizeof(ack), 1000/*, 0*/));
+    CHK(err = recv_to(ack, sizeof(ack), 300/*, 0*/));
     if (err == 0 && rep > 0) {
       D(2,("repeat %i PROTOBCM<>::read_ADC %s\n", rep, __FUNCTION__));
       --rep;

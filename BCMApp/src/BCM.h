@@ -42,18 +42,19 @@
   decl_zone##_VAR_RO(int,osc_mode_ready,0,100000000,DATA_EVENT) /* триггер результата, меняется последним*/ \
   decl_zone##_VAR_RO(int,gainK,0,1000000,CFG_EVENT) \
   decl_zone##_ARR_RO(double,arrXt,OSCSIZE,0,320,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,arr,OSCSIZE,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR(double,arr,OSCSIZE,-2048,2048,DATA_EVENT, {0}) \
+  decl_zone##_ARR(double,arrNoise,OSCSIZE,-2048,2048,DATA_EVENT, {0}) \
   decl_zone##_VAR_RO(double,Q,0,100000,DATA_EVENT) \
   decl_zone##_VAR_RO(double,timeQ,0,320,DATA_EVENT) \
   decl_zone##_VAR_RO(int,timeQY,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab0,16384,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab1,16384,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab2,16384,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab3,16384,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx0,16384,0,320,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx1,16384,0,320,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx2,16384,0,320,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx3,16384,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab0,100,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab1,100,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab2,100,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab3,100,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx0,100,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx1,100,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx2,100,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx3,100,0,320,DATA_EVENT) \
 
 
 
