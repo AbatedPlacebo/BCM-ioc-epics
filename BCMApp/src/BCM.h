@@ -43,7 +43,6 @@
   decl_zone##_VAR_RO(int,gainK,0,1000000,CFG_EVENT) \
   decl_zone##_ARR_RO(double,arrXt,OSCSIZE,0,320,DATA_EVENT) \
   decl_zone##_ARR(double,arr,OSCSIZE,-2048,2048,DATA_EVENT, {0}) \
-  decl_zone##_ARR(double,arrNoise,OSCSIZE,-2048,2048,DATA_EVENT, {0}) \
   decl_zone##_VAR_RO(double,Q,0,100000,DATA_EVENT) \
   decl_zone##_VAR_RO(double,timeQ,0,320,DATA_EVENT) \
   decl_zone##_VAR_RO(int,timeQY,-2048,2048,DATA_EVENT) \

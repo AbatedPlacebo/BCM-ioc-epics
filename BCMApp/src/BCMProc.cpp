@@ -28,12 +28,14 @@
 
 #include "waveFormMap.h"
 #include "Timer.h"
+#include "BCMMath.h"
 
 #endif
 
 #include "BCM.h"
 #include "chk_dt.h"
 #include "chk.h"
+
 
 #define debug_level debug_level_ioc
 extern int debug_level_ioc;
@@ -42,8 +44,6 @@ extern int debug_level_ioc;
 #include "PROTOHI.h"
 #include "BCMDEV.h"
 #include "PROTOBCM.h"
-#include "BCMMath.h"
-
 
 #define ALIAS(name) name
 
@@ -228,7 +228,7 @@ static void BCM_run(void* arg)
     }
     if(epicsEventWaitWithTimeout(BCM.update_stats_event, 1.0) == epicsEventWaitOK) {
       if (BCM.update_stats == 1){
-        interpolate<double>(&BCM);
+        interpolate(&BCM);
         timeQ(&BCM);
         calcQ(&BCM);
         BCM.update_stats = 0;
@@ -256,7 +256,7 @@ static void BCM_run(void* arg)
           Device.start_measurement();
           Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
           lastMeasurement = 0;
-          interpolate<double>(&BCM);
+          interpolate(&BCM);
           timeQ(&BCM);
           calcQ(&BCM);
           BCM.osc_mode = 0;
