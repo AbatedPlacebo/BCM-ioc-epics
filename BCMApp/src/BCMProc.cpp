@@ -33,6 +33,8 @@
 #endif
 
 #include "BCM.h"
+
+
 #include "chk_dt.h"
 #include "chk.h"
 
@@ -44,6 +46,7 @@ extern int debug_level_ioc;
 #include "PROTOHI.h"
 #include "BCMDEV.h"
 #include "PROTOBCM.h"
+
 
 #define ALIAS(name) name
 
@@ -124,6 +127,10 @@ extern int debug_level_ioc;
 #include "gen_c.h"
 #include "gen_init.h"
 
+
+#define TIMEOUT_LIMIT 10
+
+
 TBCM BCM;
 
 PROTOHI<BCMDEV, PROTOBCM> Device;
@@ -192,20 +199,21 @@ static void BCM_run(void* arg)
   BCM.QK = 1;
   double val = 0;
   int i;
+  double timeout = 0;
   WFM(BCM.arr).resize(OSCSIZE);
   WFM(BCM.arrXt).linspace(WAVEFORM_LENGTH_TIME, WAVEFORM_LENGTH_TIME, WFM(BCM.arr).size());
+  Timer t0;
   D(0, ("TRACE\n"));
   while(ioc_work) {
     if (BCM.connect != BCM.connected){
       if (BCM.connect){
-        if (lastConnectionTime < timeoutConnection) {
+        if (lastConnectionTime() < timeout) {
           epicsEventWaitWithTimeout(work_event, 1.0);
-          lastConnectionTime += 1;
           D(0, ("BCM.error = %d\n", BCM.error));
           continue;
         }
         lastConnectionTime = 0;
-        timeoutConnection = (BCM.error + 1) * 2;
+        timeout = (timeout <= TIMEOUT_LIMIT) ? BCM.error * 2 : TIMEOUT_LIMIT;
         CHK(Device.connect(BCM.hostname, BCM.portno));
         CHK(Device.set_start_mode(BCM.remote_start));
         CHK(Device.set_K_gain(BCM.gain));
@@ -226,7 +234,17 @@ static void BCM_run(void* arg)
       epicsEventWaitWithTimeout(work_event, 1.0);
       continue; // единственное что мы можем здесь сделать это проверить необходимость подключения
     }
-    if(epicsEventWaitWithTimeout(BCM.update_stats_event, 1.0) == epicsEventWaitOK) {
+
+    if(epicsEventTryWait(curEvent = BCM.wndBeg_event) == epicsEventWaitOK ||
+        epicsEventTryWait(curEvent = BCM.wndLen_event) == epicsEventWaitOK) {
+      if (BCM.wndBeg > BCM.wndLen){
+        double temp = BCM.wndBeg;
+        BCM.wndBeg = BCM.wndLen;
+        BCM.wndLen = temp;
+      }
+    }
+
+    if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
       if (BCM.update_stats == 1){
         interpolate(&BCM);
         timeQ(&BCM);
@@ -237,44 +255,25 @@ static void BCM_run(void* arg)
       continue;
     }
 
-    if(epicsEventWaitWithTimeout(work_event, 1.0) == epicsEventWaitOK) {
-      D(3,("произошло обновление pv для записи или мониторинга\n"));
+    if (BCM.osc_mode){
+        Device.start_measurement();
+        Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
+        lastMeasurement = 0;
+        interpolate(&BCM);
+        timeQ(&BCM);
+        calcQ(&BCM);
+        BCM.osc_mode = 0;
+        BCM.osc_mode_ready++;
+        post_event(DATA_EVENT);
+        post_event(CFG_EVENT);
     }
-    if(epicsEventTryWait(curEvent = BCM.wndBeg_event) == epicsEventWaitOK ||
-        epicsEventTryWait(curEvent = BCM.wndLen_event) == epicsEventWaitOK) {
-      if (BCM.wndBeg > BCM.wndLen){
-        double temp = BCM.wndBeg;
-        BCM.wndBeg = BCM.wndLen;
-        BCM.wndLen = temp;
-      }
-    }
-    if (epicsEventTryWait(curEvent = BCM.osc_mode_event) == epicsEventWaitOK ||
-        BCM.osc_auto){
-      if (BCM.osc_mode == 1) {
-        int connecting = BCM.connected;
-        if (connecting == 1){
-          Device.start_measurement();
-          Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
-          lastMeasurement = 0;
-          interpolate(&BCM);
-          timeQ(&BCM);
-          calcQ(&BCM);
-          BCM.osc_mode = 0;
-          BCM.osc_mode_ready++;
-          post_event(DATA_EVENT);
-          post_event(CFG_EVENT);
-        }
-      }
-      if (BCM.osc_auto) {
-        Timer timer;
-        timer = 0;
-        if (timer.diff(lastMeasurement) >= BCM.osc_auto_deadtime) {
-          BCM.osc_mode = 1;
-          post_event(CFG_EVENT);
-          epicsEventWaitWithTimeout(BCM.osc_mode_event, 0.50);
-          epicsEventWaitWithTimeout(BCM.osc_mode_event, 0.50);
-          continue;
-        }
+    if (BCM.osc_auto) {
+      if (lastMeasurement() >= BCM.osc_auto_deadtime) {
+        BCM.osc_mode = 1;
+        post_event(CFG_EVENT);
+        epicsEventWaitWithTimeout(BCM.osc_mode_event, 0.50);
+        epicsEventWaitWithTimeout(BCM.osc_mode_event, 0.50);
+        continue;
       }
     }
     BCM.error = 0;

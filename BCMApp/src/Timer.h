@@ -27,18 +27,6 @@ class Timer
     return epicsTimeDiffInSeconds(&t1, &t0);
   }
 
-  double diff(Timer& t){
-    return epicsTimeDiffInSeconds(&t0, &t.t0);
-  }
 
-  const bool operator<(Timer& t)
-  {
-    return epicsTimeLessThan (&t0, &t.t0);
-  }
-
-  const bool operator>(Timer& t)
-  {
-    return epicsTimeGreaterThan(&t0, &t.t0);
-  }
 };
 

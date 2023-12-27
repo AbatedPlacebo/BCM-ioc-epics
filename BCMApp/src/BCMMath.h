@@ -10,7 +10,6 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_spline.h>
 #include "BCM.h"
-#include "chk.h"
 #include "waveFormMap.h"
 
 #define POINTS_PER_PARAB 5
