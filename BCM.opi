@@ -61,9 +61,9 @@
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>6</x>
+    <x>0</x>
     <name>Label_6</name>
-    <y>170</y>
+    <y>278</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -98,7 +98,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>false</visible>
-    <pv_name>V:Q-I</pv_name>
+    <pv_name>$(P)Q-I</pv_name>
     <vertical_alignment>1</vertical_alignment>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -112,9 +112,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>6</x>
+    <x>0</x>
     <name>Text Update_2</name>
-    <y>192</y>
+    <y>300</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -142,7 +142,7 @@ $(trace_0_y_pv_value)</tooltip>
     </axis_0_grid_color>
     <trace_0_name>$(trace_0_y_pv)</trace_0_name>
     <trace_0_update_mode>0</trace_0_update_mode>
-    <trace_1_x_pv>V:wnd1-SP</trace_1_x_pv>
+    <trace_1_x_pv>$(P)wnd1-SP</trace_1_x_pv>
     <wuid>1ef59eee:187e54ca62c:-7ffb</wuid>
     <transparent>false</transparent>
     <trace_1_update_mode>0</trace_1_update_mode>
@@ -150,7 +150,7 @@ $(trace_0_y_pv_value)</tooltip>
       <opifont.name fontName="Sans" height="10" style="1">Default Bold</opifont.name>
     </axis_0_title_font>
     <trace_7_trace_type>0</trace_7_trace_type>
-    <trace_5_y_pv>V:parab1-I</trace_5_y_pv>
+    <trace_5_y_pv>$(P)parab1-I</trace_5_y_pv>
     <trace_7_update_mode>0</trace_7_update_mode>
     <trace_6_plot_mode>0</trace_6_plot_mode>
     <trace_2_update_mode>0</trace_2_update_mode>
@@ -159,16 +159,16 @@ $(trace_0_y_pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <trace_3_update_mode>0</trace_3_update_mode>
-    <x>6</x>
+    <x>0</x>
     <trace_6_update_mode>0</trace_6_update_mode>
-    <y>372</y>
+    <y>480</y>
     <trace_7_y_axis_index>1</trace_7_y_axis_index>
     <trace_4_update_mode>0</trace_4_update_mode>
     <trace_3_x_axis_index>0</trace_3_x_axis_index>
     <trace_5_update_mode>0</trace_5_update_mode>
     <trace_0_x_axis_index>0</trace_0_x_axis_index>
     <axis_count>2</axis_count>
-    <trace_4_x_pv>V:parabx0-I</trace_4_x_pv>
+    <trace_4_x_pv>$(P)parabx0-I</trace_4_x_pv>
     <trace_3_y_pv_value />
     <trace_1_point_size>10</trace_1_point_size>
     <trace_1_anti_alias>false</trace_1_anti_alias>
@@ -202,11 +202,11 @@ $(trace_0_y_pv_value)</tooltip>
     <trace_1_name>$(trace_1_y_pv)</trace_1_name>
     <trace_3_anti_alias>true</trace_3_anti_alias>
     <trace_1_y_pv_value />
-    <trace_4_y_pv>V:parab0-I</trace_4_y_pv>
+    <trace_4_y_pv>$(P)parab0-I</trace_4_y_pv>
     <show_legend>true</show_legend>
     <trace_3_visible>true</trace_3_visible>
     <trace_6_y_axis_index>1</trace_6_y_axis_index>
-    <trace_5_x_pv>V:parabx1-I</trace_5_x_pv>
+    <trace_5_x_pv>$(P)parabx1-I</trace_5_x_pv>
     <trace_4_x_axis_index>0</trace_4_x_axis_index>
     <trace_7_name>$(trace_7_y_pv)</trace_7_name>
     <trace_6_x_axis_index>0</trace_6_x_axis_index>
@@ -234,7 +234,7 @@ $(trace_0_y_pv_value)</tooltip>
     <trace_count>8</trace_count>
     <axis_1_show_grid>true</axis_1_show_grid>
     <trace_6_point_size>4</trace_6_point_size>
-    <trace_3_x_pv>V:timeQ-I</trace_3_x_pv>
+    <trace_3_x_pv>$(P)timeQ-I</trace_3_x_pv>
     <trace_2_trace_color>
       <color red="33" green="179" blue="33" />
     </trace_2_trace_color>
@@ -242,7 +242,7 @@ $(trace_0_y_pv_value)</tooltip>
     <axis_1_dash_grid_line>true</axis_1_dash_grid_line>
     <trace_3_buffer_size>1</trace_3_buffer_size>
     <trace_2_trace_type>3</trace_2_trace_type>
-    <trace_6_y_pv>V:parab2-I</trace_6_y_pv>
+    <trace_6_y_pv>$(P)parab2-I</trace_6_y_pv>
     <trace_6_trace_color>
       <color red="255" green="0" blue="240" />
     </trace_6_trace_color>
@@ -274,7 +274,7 @@ $(trace_0_y_pv_value)</tooltip>
     <height>300</height>
     <trace_2_visible>true</trace_2_visible>
     <trigger_pv_value />
-    <trace_3_y_pv>V:timeQY-I</trace_3_y_pv>
+    <trace_3_y_pv>$(P)timeQY-I</trace_3_y_pv>
     <axis_1_grid_color>
       <color red="200" green="200" blue="200" />
     </axis_1_grid_color>
@@ -282,7 +282,7 @@ $(trace_0_y_pv_value)</tooltip>
     <trace_2_point_size>10</trace_2_point_size>
     <trace_4_concatenate_data>false</trace_4_concatenate_data>
     <trace_7_y_pv_value />
-    <trace_6_x_pv>V:parabx2-I</trace_6_x_pv>
+    <trace_6_x_pv>$(P)parabx2-I</trace_6_x_pv>
     <trace_6_name>$(trace_6_y_pv)</trace_6_name>
     <axis_0_log_scale>false</axis_0_log_scale>
     <trace_0_x_pv_value />
@@ -294,13 +294,13 @@ $(trace_0_y_pv_value)</tooltip>
         <exp bool_exp="true">
           <value>pv0</value>
         </exp>
-        <pv trig="true">V:wndLen-SP</pv>
+        <pv trig="true">$(P)wndLen-SP</pv>
       </rule>
       <rule name="Rule" prop_id="axis_0_minimum" out_exp="true">
         <exp bool_exp="true">
           <value>pv0</value>
         </exp>
-        <pv trig="true">V:wndBeg-SP</pv>
+        <pv trig="true">$(P)wndBeg-SP</pv>
       </rule>
     </rules>
     <trace_5_plot_mode>0</trace_5_plot_mode>
@@ -314,7 +314,7 @@ $(trace_0_y_pv_value)</tooltip>
     <trace_3_trace_color>
       <color name="Major" red="255" green="0" blue="0" />
     </trace_3_trace_color>
-    <pv_name>V:arr-RB</pv_name>
+    <pv_name>$(P)arr-RB</pv_name>
     <trace_5_trace_color>
       <color red="255" green="170" blue="0" />
     </trace_5_trace_color>
@@ -347,13 +347,13 @@ $(trace_0_y_pv_value)</tooltip>
     <trace_0_plot_mode>0</trace_0_plot_mode>
     <trace_4_trace_type>0</trace_4_trace_type>
     <enabled>true</enabled>
-    <trace_0_x_pv>V:arrXt-I</trace_0_x_pv>
+    <trace_0_x_pv>$(P)arrXt-I</trace_0_x_pv>
     <trace_7_point_style>0</trace_7_point_style>
     <axis_1_scale_font>
       <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
     </axis_1_scale_font>
     <axis_1_time_format>0</axis_1_time_format>
-    <trace_7_x_pv>V:parabx3-I</trace_7_x_pv>
+    <trace_7_x_pv>$(P)parabx3-I</trace_7_x_pv>
     <trace_3_plot_mode>0</trace_3_plot_mode>
     <border_alarm_sensitive>true</border_alarm_sensitive>
     <trace_7_concatenate_data>false</trace_7_concatenate_data>
@@ -396,8 +396,8 @@ $(trace_0_y_pv_value)</tooltip>
     <trace_7_visible>true</trace_7_visible>
     <trace_4_y_axis_index>1</trace_4_y_axis_index>
     <trace_2_plot_mode>1</trace_2_plot_mode>
-    <trace_2_x_pv>V:wnd2-SP</trace_2_x_pv>
-    <trace_7_y_pv>V:parab3-I</trace_7_y_pv>
+    <trace_2_x_pv>$(P)wnd2-SP</trace_2_x_pv>
+    <trace_7_y_pv>$(P)parab3-I</trace_7_y_pv>
     <foreground_color>
       <color red="0" green="0" blue="255" />
     </foreground_color>
@@ -417,7 +417,7 @@ $(pv_value)</tooltip>
     <multiline_input>false</multiline_input>
     <border_width>1</border_width>
     <visible>true</visible>
-    <pv_name>V:hostname-SP</pv_name>
+    <pv_name>$(P)hostname-SP</pv_name>
     <selector_type>0</selector_type>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -447,8 +447,8 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>6</x>
-    <y>30</y>
+    <x>0</x>
+    <y>138</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -487,9 +487,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>6</x>
+    <x>0</x>
     <name>Label1</name>
-    <y>11</y>
+    <y>119</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -508,7 +508,7 @@ $(pv_value)</tooltip>
     <height>20</height>
     <border_width>1</border_width>
     <visible>true</visible>
-    <pv_name>V:connected-Sts</pv_name>
+    <pv_name>$(P)connected-Sts</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -540,9 +540,9 @@ $(pv_value)</tooltip>
     </background_color>
     <square_led>false</square_led>
     <width>20</width>
-    <x>393</x>
+    <x>387</x>
     <data_type>0</data_type>
-    <y>33</y>
+    <y>141</y>
     <foreground_color>
       <color red="192" green="192" blue="192" />
     </foreground_color>
@@ -575,7 +575,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:connect-Cmd</pv_name>
+    <pv_name>$(P)connect-Cmd</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -586,9 +586,9 @@ $(pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>127</width>
-    <x>261</x>
+    <x>255</x>
     <name>Check Box</name>
-    <y>33</y>
+    <y>141</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -626,9 +626,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>92</width>
-    <x>412</x>
+    <x>406</x>
     <name>Label_4</name>
-    <y>33</y>
+    <y>141</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -652,7 +652,7 @@ $(pv_value)</tooltip>
     <multiline_input>false</multiline_input>
     <border_width>1</border_width>
     <visible>true</visible>
-    <pv_name>V:portno-SP</pv_name>
+    <pv_name>$(P)portno-SP</pv_name>
     <selector_type>0</selector_type>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -682,8 +682,8 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>124</x>
-    <y>30</y>
+    <x>118</x>
+    <y>138</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -722,9 +722,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>124</x>
+    <x>118</x>
     <name>Label_2</name>
-    <y>11</y>
+    <y>119</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -762,9 +762,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>8</x>
+    <x>2</x>
     <name>Label_3</name>
-    <y>86</y>
+    <y>194</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -797,7 +797,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:remote_start-Cmd</pv_name>
+    <pv_name>$(P)remote_start-Cmd</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -808,9 +808,9 @@ $(pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>255</width>
-    <x>513</x>
+    <x>507</x>
     <name>Check Box_1</name>
-    <y>33</y>
+    <y>141</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -834,7 +834,7 @@ $(pv_value)</tooltip>
     <multiline_input>false</multiline_input>
     <border_width>1</border_width>
     <visible>true</visible>
-    <pv_name>V:gain-SP</pv_name>
+    <pv_name>$(P)gain-SP</pv_name>
     <selector_type>0</selector_type>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -864,8 +864,8 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>135</x>
-    <y>105</y>
+    <x>129</x>
+    <y>213</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -904,9 +904,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>135</x>
+    <x>129</x>
     <name>Label_4</name>
-    <y>86</y>
+    <y>194</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -941,7 +941,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:gainK-I</pv_name>
+    <pv_name>$(P)gainK-I</pv_name>
     <vertical_alignment>1</vertical_alignment>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -955,9 +955,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>9</x>
+    <x>3</x>
     <name>Text Update</name>
-    <y>108</y>
+    <y>216</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -995,9 +995,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>261</x>
+    <x>255</x>
     <name>Label_5</name>
-    <y>86</y>
+    <y>194</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1021,7 +1021,7 @@ $(pv_value)</tooltip>
     <multiline_input>false</multiline_input>
     <border_width>1</border_width>
     <visible>true</visible>
-    <pv_name>V:QK-SP</pv_name>
+    <pv_name>$(P)QK-SP</pv_name>
     <selector_type>0</selector_type>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -1051,8 +1051,8 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>261</x>
-    <y>105</y>
+    <x>255</x>
+    <y>213</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1072,13 +1072,13 @@ $(pv_value)</tooltip>
         <exp bool_exp="true">
           <value>pv0</value>
         </exp>
-        <pv trig="true">V:wndLen-SP</pv>
+        <pv trig="true">$(P)wndLen-SP</pv>
       </rule>
       <rule name="Rule" prop_id="minimum" out_exp="true">
         <exp bool_exp="true">
           <value>pv0</value>
         </exp>
-        <pv trig="true">V:wndBeg-SP</pv>
+        <pv trig="true">$(P)wndBeg-SP</pv>
       </rule>
     </rules>
     <enabled>true</enabled>
@@ -1097,7 +1097,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:wnd2-SP</pv_name>
+    <pv_name>$(P)wnd2-SP</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -1110,9 +1110,9 @@ $(pv_value)</tooltip>
     </background_color>
     <page_increment>10.0</page_increment>
     <width>708</width>
-    <x>60</x>
+    <x>54</x>
     <name>Spinner</name>
-    <y>348</y>
+    <y>456</y>
     <maximum>1.0</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1133,13 +1133,13 @@ $(pv_value)</tooltip>
         <exp bool_exp="true">
           <value>pv0</value>
         </exp>
-        <pv trig="true">V:wndLen-SP</pv>
+        <pv trig="true">$(P)wndLen-SP</pv>
       </rule>
       <rule name="Rule" prop_id="minimum" out_exp="true">
         <exp bool_exp="true">
           <value>pv0</value>
         </exp>
-        <pv trig="true">V:wndBeg-SP</pv>
+        <pv trig="true">$(P)wndBeg-SP</pv>
       </rule>
     </rules>
     <enabled>true</enabled>
@@ -1158,7 +1158,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:wnd1-SP</pv_name>
+    <pv_name>$(P)wnd1-SP</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -1171,9 +1171,9 @@ $(pv_value)</tooltip>
     </background_color>
     <page_increment>10.0</page_increment>
     <width>708</width>
-    <x>60</x>
+    <x>54</x>
     <name>Spinner_1</name>
-    <y>324</y>
+    <y>432</y>
     <maximum>1.0</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1213,9 +1213,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>122</width>
-    <x>142</x>
+    <x>136</x>
     <name>Label_9</name>
-    <y>239</y>
+    <y>347</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1247,7 +1247,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:wndLen-SP</pv_name>
+    <pv_name>$(P)wndLen-SP</pv_name>
     <vertical_alignment>1</vertical_alignment>
     <format>0</format>
     <horizontal_buttons_layout>false</horizontal_buttons_layout>
@@ -1264,9 +1264,9 @@ $(pv_value)</tooltip>
     </background_color>
     <page_increment>10.0</page_increment>
     <width>85</width>
-    <x>142</x>
+    <x>136</x>
     <name>Spinner_2</name>
-    <y>258</y>
+    <y>366</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1306,9 +1306,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>708</width>
-    <x>60</x>
+    <x>54</x>
     <name>Label_11</name>
-    <y>294</y>
+    <y>402</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1344,7 +1344,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:timeQ-I</pv_name>
+    <pv_name>$(P)timeQ-I</pv_name>
     <vertical_alignment>1</vertical_alignment>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -1358,9 +1358,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>135</x>
+    <x>129</x>
     <name>Text Update_3</name>
-    <y>192</y>
+    <y>300</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1398,9 +1398,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>117</width>
-    <x>133</x>
+    <x>127</x>
     <name>Label_12</name>
-    <y>150</y>
+    <y>258</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1439,9 +1439,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>136</width>
-    <x>6</x>
+    <x>0</x>
     <name>Label_13</name>
-    <y>239</y>
+    <y>347</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1473,7 +1473,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:wndBeg-SP</pv_name>
+    <pv_name>$(P)wndBeg-SP</pv_name>
     <vertical_alignment>1</vertical_alignment>
     <format>0</format>
     <horizontal_buttons_layout>false</horizontal_buttons_layout>
@@ -1490,9 +1490,9 @@ $(pv_value)</tooltip>
     </background_color>
     <page_increment>10.0</page_increment>
     <width>85</width>
-    <x>6</x>
+    <x>0</x>
     <name>Spinner_3</name>
-    <y>258</y>
+    <y>366</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1527,7 +1527,7 @@ $(pv_value)</tooltip>
     </scale_options>
     <items_from_pv>true</items_from_pv>
     <visible>true</visible>
-    <pv_name>V:minmax-Cmd</pv_name>
+    <pv_name>$(P)minmax-Cmd</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -1537,9 +1537,9 @@ $(pv_value)</tooltip>
       <color red="230" green="230" blue="230" />
     </background_color>
     <width>67</width>
-    <x>412</x>
+    <x>406</x>
     <name>Radio Box</name>
-    <y>182</y>
+    <y>290</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1577,9 +1577,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>117</width>
-    <x>412</x>
+    <x>406</x>
     <name>Label_14</name>
-    <y>140</y>
+    <y>248</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1613,7 +1613,7 @@ $(pv_value)</tooltip>
     </scale_options>
     <image></image>
     <visible>true</visible>
-    <pv_name>V:osc_mode-Cmd</pv_name>
+    <pv_name>$(P)osc_mode-Cmd</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -1623,9 +1623,9 @@ $(pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>96</width>
-    <x>572</x>
+    <x>566</x>
     <name>Action Button</name>
-    <y>246</y>
+    <y>354</y>
     <style>0</style>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1667,7 +1667,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:osc_auto-Cmd</pv_name>
+    <pv_name>$(P)osc_auto-Cmd</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -1678,9 +1678,9 @@ $(pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>157</width>
-    <x>263</x>
+    <x>257</x>
     <name>Check Box_2</name>
-    <y>261</y>
+    <y>369</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1718,9 +1718,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>141</width>
-    <x>432</x>
+    <x>426</x>
     <name>Label_15</name>
-    <y>239</y>
+    <y>347</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1744,7 +1744,7 @@ $(pv_value)</tooltip>
     <multiline_input>false</multiline_input>
     <border_width>1</border_width>
     <visible>true</visible>
-    <pv_name>V:osc_auto_deadtime-SP</pv_name>
+    <pv_name>$(P)osc_auto_deadtime-SP</pv_name>
     <selector_type>0</selector_type>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -1774,8 +1774,8 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>432</x>
-    <y>258</y>
+    <x>426</x>
+    <y>366</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1809,7 +1809,7 @@ $(pv_value)</tooltip>
     </scale_options>
     <image></image>
     <visible>true</visible>
-    <pv_name>V:update_stats-Cmd</pv_name>
+    <pv_name>$(P)update_stats-Cmd</pv_name>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -1819,9 +1819,9 @@ $(pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>96</width>
-    <x>679</x>
+    <x>673</x>
     <name>Action Button_1</name>
-    <y>246</y>
+    <y>354</y>
     <style>0</style>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -1865,7 +1865,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <visible>true</visible>
-    <pv_name>V:timeQY-I</pv_name>
+    <pv_name>$(P)timeQY-I</pv_name>
     <vertical_alignment>1</vertical_alignment>
     <border_color>
       <color red="0" green="128" blue="255" />
@@ -1879,9 +1879,9 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>268</x>
+    <x>262</x>
     <name>Text Update_4</name>
-    <y>192</y>
+    <y>300</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -1919,14 +1919,56 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>117</width>
-    <x>266</x>
+    <x>260</x>
     <name>Label_16</name>
-    <y>150</y>
+    <y>258</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
     <actions hook="false" hook_all="false" />
     <show_scrollbar>false</show_scrollbar>
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.linkingContainer" version="1.0.0">
+    <opi_file>header.opi</opi_file>
+    <border_style>3</border_style>
+    <tooltip></tooltip>
+    <rules />
+    <enabled>true</enabled>
+    <wuid>785c39a:18d5f082188:-7762</wuid>
+    <auto_size>false</auto_size>
+    <scripts />
+    <height>52</height>
+    <border_width>1</border_width>
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <macros>
+      <include_parent_macros>true</include_parent_macros>
+      <FILE>BCM</FILE>
+    </macros>
+    <visible>true</visible>
+    <group_name></group_name>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <widget_type>Linking Container</widget_type>
+    <background_color>
+      <color red="240" green="240" blue="240" />
+    </background_color>
+    <zoom_to_fit>false</zoom_to_fit>
+    <width>793</width>
+    <x>5</x>
+    <name>Linking Container</name>
+    <y>6</y>
+    <foreground_color>
+      <color red="192" green="192" blue="192" />
+    </foreground_color>
+    <actions hook="false" hook_all="false" />
     <font>
       <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
     </font>
