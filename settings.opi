@@ -77,7 +77,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>0</x>
+    <x>6</x>
     <y>24</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
@@ -117,7 +117,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>0</x>
+    <x>6</x>
     <name>Label1</name>
     <y>5</y>
     <foreground_color>
@@ -170,7 +170,7 @@ $(pv_value)</tooltip>
     </background_color>
     <square_led>false</square_led>
     <width>20</width>
-    <x>387</x>
+    <x>262</x>
     <data_type>0</data_type>
     <y>27</y>
     <foreground_color>
@@ -216,48 +216,8 @@ $(pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>127</width>
-    <x>255</x>
+    <x>288</x>
     <name>Check Box</name>
-    <y>27</y>
-    <foreground_color>
-      <color red="0" green="0" blue="0" />
-    </foreground_color>
-    <actions hook="false" hook_all="false" />
-    <font>
-      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
-    </font>
-  </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
-    <border_style>0</border_style>
-    <tooltip></tooltip>
-    <horizontal_alignment>0</horizontal_alignment>
-    <rules />
-    <enabled>true</enabled>
-    <wuid>83b455f:18d62fbd69e:-7e59</wuid>
-    <transparent>true</transparent>
-    <auto_size>false</auto_size>
-    <text>Подключено</text>
-    <scripts />
-    <height>20</height>
-    <border_width>1</border_width>
-    <scale_options>
-      <width_scalable>true</width_scalable>
-      <height_scalable>true</height_scalable>
-      <keep_wh_ratio>false</keep_wh_ratio>
-    </scale_options>
-    <visible>true</visible>
-    <vertical_alignment>1</vertical_alignment>
-    <border_color>
-      <color red="0" green="128" blue="255" />
-    </border_color>
-    <widget_type>Label</widget_type>
-    <wrap_words>false</wrap_words>
-    <background_color>
-      <color red="255" green="255" blue="255" />
-    </background_color>
-    <width>92</width>
-    <x>406</x>
-    <name>Label_4</name>
     <y>27</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -312,7 +272,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>118</x>
+    <x>124</x>
     <y>24</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
@@ -352,7 +312,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>118</x>
+    <x>124</x>
     <name>Label_2</name>
     <y>5</y>
     <foreground_color>
@@ -376,10 +336,10 @@ $(pv_value)</tooltip>
       <color red="77" green="77" blue="77" />
     </selected_color>
     <pv_value />
-    <auto_size>false</auto_size>
+    <auto_size>true</auto_size>
     <scripts />
     <border_alarm_sensitive>true</border_alarm_sensitive>
-    <height>20</height>
+    <height>22</height>
     <border_width>1</border_width>
     <scale_options>
       <width_scalable>true</width_scalable>
@@ -397,10 +357,10 @@ $(pv_value)</tooltip>
     <background_color>
       <color red="240" green="240" blue="240" />
     </background_color>
-    <width>255</width>
-    <x>256</x>
+    <width>271</width>
+    <x>418</x>
     <name>Check Box_1</name>
-    <y>90</y>
+    <y>26</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
@@ -438,7 +398,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>122</width>
-    <x>135</x>
+    <x>141</x>
     <name>Label_9</name>
     <y>125</y>
     <foreground_color>
@@ -489,7 +449,7 @@ $(pv_value)</tooltip>
     </background_color>
     <page_increment>10.0</page_increment>
     <width>85</width>
-    <x>135</x>
+    <x>141</x>
     <name>Spinner_2</name>
     <y>144</y>
     <maximum>1.7976931348623157E308</maximum>
@@ -531,7 +491,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>136</width>
-    <x>-1</x>
+    <x>5</x>
     <name>Label_13</name>
     <y>125</y>
     <foreground_color>
@@ -582,7 +542,7 @@ $(pv_value)</tooltip>
     </background_color>
     <page_increment>10.0</page_increment>
     <width>85</width>
-    <x>-1</x>
+    <x>5</x>
     <name>Spinner_3</name>
     <y>144</y>
     <maximum>1.7976931348623157E308</maximum>
@@ -630,7 +590,7 @@ $(pv_value)</tooltip>
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>157</width>
-    <x>256</x>
+    <x>262</x>
     <name>Check Box_2</name>
     <y>147</y>
     <foreground_color>
@@ -670,7 +630,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>141</width>
-    <x>432</x>
+    <x>438</x>
     <name>Label_15</name>
     <y>125</y>
     <foreground_color>
@@ -726,7 +686,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>432</x>
+    <x>438</x>
     <y>144</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
@@ -766,7 +726,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>-1</x>
+    <x>5</x>
     <name>Label_3</name>
     <y>68</y>
     <foreground_color>
@@ -822,7 +782,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>126</x>
+    <x>132</x>
     <y>87</y>
     <maximum>1.7976931348623157E308</maximum>
     <foreground_color>
@@ -862,7 +822,7 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>62</width>
-    <x>126</x>
+    <x>132</x>
     <name>Label_7</name>
     <y>68</y>
     <foreground_color>
@@ -913,13 +873,109 @@ $(pv_value)</tooltip>
       <color red="255" green="255" blue="255" />
     </background_color>
     <width>100</width>
-    <x>0</x>
+    <x>6</x>
     <name>Text Update</name>
     <y>90</y>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
     <actions hook="false" hook_all="false" />
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <border_style>0</border_style>
+    <tooltip></tooltip>
+    <horizontal_alignment>0</horizontal_alignment>
+    <rules />
+    <enabled>true</enabled>
+    <wuid>83b455f:18d62fbd69e:-6aeb</wuid>
+    <transparent>true</transparent>
+    <auto_size>false</auto_size>
+    <text>QK</text>
+    <scripts />
+    <height>20</height>
+    <border_width>1</border_width>
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <visible>true</visible>
+    <vertical_alignment>1</vertical_alignment>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <widget_type>Label</widget_type>
+    <wrap_words>false</wrap_words>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <width>62</width>
+    <x>262</x>
+    <name>Label_5</name>
+    <y>68</y>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <actions hook="false" hook_all="false" />
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.TextInput" version="2.0.0">
+    <precision>2</precision>
+    <tooltip>$(pv_name)
+$(pv_value)</tooltip>
+    <horizontal_alignment>0</horizontal_alignment>
+    <rules />
+    <pv_value />
+    <auto_size>false</auto_size>
+    <text></text>
+    <rotation_angle>0.0</rotation_angle>
+    <show_units>true</show_units>
+    <height>25</height>
+    <multiline_input>false</multiline_input>
+    <border_width>1</border_width>
+    <visible>true</visible>
+    <pv_name>$(P)QK-SP</pv_name>
+    <selector_type>0</selector_type>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <precision_from_pv>false</precision_from_pv>
+    <widget_type>Text Input</widget_type>
+    <confirm_message></confirm_message>
+    <name>Text Input_4</name>
+    <style>0</style>
+    <actions hook="false" hook_all="false" />
+    <border_style>3</border_style>
+    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+    <enabled>true</enabled>
+    <wuid>83b455f:18d62fbd69e:-6aea</wuid>
+    <transparent>false</transparent>
+    <scripts />
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+    <format_type>1</format_type>
+    <limits_from_pv>false</limits_from_pv>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <width>100</width>
+    <x>262</x>
+    <y>87</y>
+    <maximum>1.7976931348623157E308</maximum>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <minimum>-1.7976931348623157E308</minimum>
     <font>
       <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
     </font>
