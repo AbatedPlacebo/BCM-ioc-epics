@@ -97,60 +97,6 @@
     <enabled>true</enabled>
     <wuid>7e127d8:167c45f6322:-74ac</wuid>
     <pv_value />
-    <text>VEPP3</text>
-    <scripts />
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-    <height>24</height>
-    <border_width>1</border_width>
-    <scale_options>
-      <width_scalable>true</width_scalable>
-      <height_scalable>true</height_scalable>
-      <keep_wh_ratio>false</keep_wh_ratio>
-    </scale_options>
-    <image></image>
-    <visible>true</visible>
-    <pv_name></pv_name>
-    <border_color>
-      <color red="0" green="128" blue="255" />
-    </border_color>
-    <widget_type>Action Button</widget_type>
-    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
-    <background_color>
-      <color red="240" green="240" blue="240" />
-    </background_color>
-    <width>60</width>
-    <x>0</x>
-    <name>Action Button_1</name>
-    <y>0</y>
-    <style>0</style>
-    <foreground_color>
-      <color red="0" green="0" blue="0" />
-    </foreground_color>
-    <actions hook="false" hook_all="false">
-      <action type="OPEN_DISPLAY">
-        <path>$(FILE).opi</path>
-        <macros>
-          <include_parent_macros>true</include_parent_macros>
-          <P>$(text):BCM:</P>
-        </macros>
-        <replace>1</replace>
-        <description></description>
-      </action>
-    </actions>
-    <font>
-      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
-    </font>
-  </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="2.0.0">
-    <toggle_button>false</toggle_button>
-    <border_style>0</border_style>
-    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
-    <tooltip>$(text)</tooltip>
-    <push_action_index>0</push_action_index>
-    <rules />
-    <enabled>true</enabled>
-    <wuid>5ce402b2:18cfcc7c6da:-7f85</wuid>
-    <pv_value />
     <text>VEPP4</text>
     <scripts />
     <border_alarm_sensitive>false</border_alarm_sensitive>
@@ -173,7 +119,7 @@
       <color red="240" green="240" blue="240" />
     </background_color>
     <width>60</width>
-    <x>59</x>
+    <x>0</x>
     <name>Action Button_1</name>
     <y>0</y>
     <style>0</style>
