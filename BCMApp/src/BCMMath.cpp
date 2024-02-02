@@ -8,8 +8,8 @@ double calcQ(TBCM* BCM){
   }
   double integral = 0.0;
   int i;
-  int beg = BCM->wnd1 * WAVEFORM_LENGTH_TIME;
-  int end = BCM->wnd2 * WAVEFORM_LENGTH_TIME;
+  int beg = round(BCM->wnd1 / WAVEFORM_LENGTH_TIME);
+  int end = round(BCM->wnd2 / WAVEFORM_LENGTH_TIME);
   for (i = beg; i < end; i += 1){
     integral += fabs(BCM->arr[i]) * WAVEFORM_LENGTH_TIME;
   }
@@ -95,6 +95,8 @@ int interpolate(TBCM* BCM){
   double x[points_cnt];
   double y[points_cnt];
   int Nroots = find_roots(BCM, rootsx);
+  if (Nroots == 0)
+    return -1;
   gsl_interp_accel *acc;
   const gsl_interp_type *t = gsl_interp_cspline;
   gsl_spline *spline;

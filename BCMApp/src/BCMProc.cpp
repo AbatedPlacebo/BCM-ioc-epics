@@ -42,6 +42,8 @@
 #define debug_level debug_level_ioc
 extern int debug_level_ioc;
 
+extern int error_timeout;
+
 // Driver library
 #include "PROTOHI.h"
 #include "BCMDEV.h"
@@ -164,7 +166,6 @@ static int bcm_wait_autosave(double timeout)
 
 static void BCM_init(int i)
 {
-  D(0, ("TRACE\n"));
   D(0, ("argv0=%s argv1=%s\n", argv0, argv1));
   sig_handler_install();
   if(work_event==0) {
@@ -188,7 +189,6 @@ static void BCM_init(int i)
     sig_handler_uninstall();
   }
   // stab_run(NULL);
-  D(0, ("TRACE\n"));
 }
 
 static void BCM_run(void* arg)
@@ -203,30 +203,28 @@ static void BCM_run(void* arg)
   WFM(BCM.arr).resize(OSCSIZE);
   WFM(BCM.arrXt).linspace(WAVEFORM_LENGTH_TIME, WAVEFORM_LENGTH_TIME, WFM(BCM.arr).size());
   Timer t0;
-  D(0, ("TRACE\n"));
+  D(0, ("Starting IOC...\n"));
   while(ioc_work) {
     if (BCM.connect != BCM.connected){
       if (BCM.connect){
         if (lastConnectionTime() < timeout) {
           epicsEventWaitWithTimeout(work_event, 1.0);
-          D(0, ("BCM.error = %d\n", BCM.error));
           continue;
         }
         lastConnectionTime = 0;
-        timeout = (timeout <= TIMEOUT_LIMIT) ? BCM.error * 2 : TIMEOUT_LIMIT;
+        timeout = (timeout <= TIMEOUT_LIMIT) ? error_timeout * 2 : TIMEOUT_LIMIT;
         CHK(Device.connect(BCM.hostname, BCM.portno));
         CHK(Device.set_start_mode(BCM.remote_start));
         CHK(Device.set_K_gain(BCM.gain));
         BCM.gainK = BCM.gain * 2;
         BCM.connected = Device.is_connected();
-        BCM.error++;
         if (curEvent != nullptr)
           epicsEventSignal(curEvent);
       }
       else {
         Device.disconnect();
         BCM.connected = 0;
-        BCM.error = 0;
+        error_timeout = 0;
       }
       PROCESS_CFG_EVENT();
     }
@@ -256,12 +254,14 @@ static void BCM_run(void* arg)
     }
 
     if (BCM.osc_mode){
-        Device.start_measurement();
-        Device.get_ADC_buffer(BCM.arr, BCM.arr_ne);
+        CHK(Device.start_measurement());
+        CHK(Device.get_ADC_buffer(BCM.arr, BCM.arr_ne));
         lastMeasurement = 0;
-        interpolate(&BCM);
-        timeQ(&BCM);
-        calcQ(&BCM);
+        int interp_res = interpolate(&BCM);
+        if (interp_res == 0){
+          timeQ(&BCM);
+          calcQ(&BCM);
+        }
         BCM.osc_mode = 0;
         BCM.osc_mode_ready++;
         post_event(DATA_EVENT);
@@ -276,16 +276,17 @@ static void BCM_run(void* arg)
         continue;
       }
     }
-    BCM.error = 0;
     continue;
 CHK_ERR:
     Device.disconnect();
     BCM.connected = 0;
     BCM.error++;
+    error_timeout++;
+    D(1, ("Current error = %d\n", error_timeout));
     post_event(CFG_EVENT);
   }
   Device.disconnect();
-  D(0, ("TRACE\n"));
+  D(0, ("Exiting...\n"));
   if(signal_exit) {
     term_echo_on();
     epicsExit(-1);
@@ -297,7 +298,7 @@ int wait_exit()
 {
   ioc_work = 0;
   while(work_th) {
-    D(2,("wait exit\n"));
+    D(1,("wait exit\n"));
     epicsThreadSleep(1);
   }
   return 0;
@@ -306,8 +307,9 @@ int wait_exit()
 #endif
 
 
-DECL_C_VAR(int,debug_level_ioc,2)
+DECL_C_VAR(int,debug_level_ioc,1)
 DECL_C_VAR(int,debug_sub_exec,0)
+DECL_C_VAR(int,error_timeout,0)
 #define DECL_GLOBAL_PREF BCM.
 DECL_BCM(DECL_GLOBAL)
   //DECL_VAR_FUNC(int,command,0,3)

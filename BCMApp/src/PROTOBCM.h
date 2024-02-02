@@ -25,26 +25,26 @@ class PROTOBCM {
     // middle level
     int socket();
     int send_com(int instr, int nreg, int param1, int param2 = 0);
-    int ack_to(int cmd, int regn, 
+    int ack_to(int cmd, int regn,
         int to_ms = 10, int count = 1, int repeat = 1);
-    int recv_to(void *_buf, int _size, int _to_ms, 
+    int recv_to(void *_buf, int _size, int _to_ms,
         const int unet_flag = 0);
     int ready_udp(int timeout_ms);
-    static int cunet_print(int _debug_level, 
+    static int cunet_print(int _debug_level,
         const char* str, uint8_t* buf, int size);
     int close();
   public:
-    PROTOBCM(); 
+    PROTOBCM();
     ~PROTOBCM();
     int connect(const char *peer, int port);
     int disconnect();
     int wr_reg(unsigned int regn, unsigned int param);
-    int rd_reg(unsigned int regn, unsigned int *param); 
-    int start(); 
+    int rd_reg(unsigned int regn, unsigned int *param);
+    int start();
     int stop();
     int rd_ADC(int* arr, int size, unsigned int start_page,
         unsigned int end_page);
-    int init_generator(); 
+    int init_generator();
     int reset_measurement_cnt();
     int is_connected() const;
     int wrrd_reg(unsigned int regn, unsigned int *param);
@@ -242,7 +242,7 @@ REP:
   for(cnt = count; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), to_ms));
     if(err == 0 && rep > 0) {
-      D(2,("repeat %i PROTOBCM<>::write_reg\n", rep));
+      D(3,("repeat %i PROTOBCM<>::write_reg\n", rep));
       --rep;
       goto REP;
     }
@@ -327,7 +327,7 @@ REP:
   for (cnt = 1; cnt > 0; --cnt) { 
     CHK(err = recv_to(ack, sizeof(ack), 50/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i PROTOBCM<>::write_reg\n", rep));
+      D(3,("repeat %i PROTOBCM<>::write_reg\n", rep));
       --rep;
       goto REP;
     }
@@ -342,7 +342,7 @@ REP:
   return err;
 CHK_ERR:
   if (err > 0)
-    D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+    D(3,("err=%i ack=%02x%02x%02x%02x\n", 
           err, ack[0], ack[1], ack[2], ack[3]));
   return -1;
 }
@@ -361,7 +361,7 @@ REP:
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
     if (err == 0 && rep > 0) 
     {
-      D(2,("repeat %i PROTOBCM<>::read_reg %s\n", rep, __FUNCTION__));
+      D(3,("repeat %i PROTOBCM<>::read_reg %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
@@ -379,7 +379,7 @@ REP:
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf4) {
@@ -387,7 +387,7 @@ REP:
       WARNTRUE(ack[0] == 0xF4 || (pack = 0));
       WARNTRUE(ack[1] == regn || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
       *param = (((unsigned int) ack[2]) << 8) | ack[3];
       D(3,("val %i(%04x)\n", *param, *param));
@@ -412,7 +412,7 @@ REP:
   for (cnt = 1; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i %s\n", rep, __FUNCTION__));
+      D(3,("repeat %i %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
@@ -436,16 +436,16 @@ CHK_ERR:
 template <typename DEV>
 int PROTOBCM<DEV>::start() {
   int err = -1;
-  int rep = 1;
+  int rep = 2;
   int cnt;
   uint8_t ack[DEV::CONSTANTS::ACK_LENGTH];
 REP:
-  (3,("Start measurement...\n"));
+  D(3,("Start measurement...\n"));
   CHK(err = send_com(DEV::CMD_START, 0, 0));
   for (cnt = 2; cnt > 0; --cnt) {
-    CHK(err = recv_to(ack, sizeof(ack), 1000/*, 0*/));
+    CHK(err = recv_to(ack, sizeof(ack), 10000/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i PROTOBCM<>::start %s\n", rep, __FUNCTION__));
+      D(3,("repeat %i PROTOBCM<>::start %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
@@ -460,7 +460,7 @@ REP:
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0x11) {
@@ -468,7 +468,7 @@ REP:
       WARNTRUE(ack[0] == 0x11 || (pack = 0));
       WARNTRUE(ack[1] == 0x03 || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x\n", 
               err, ack[0], ack[1]));
     }
   }
@@ -491,12 +491,12 @@ int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned 
 REP:
   cnt_adc = (end_page - page) < 0 ?
     page - end_page : end_page - page;
-  D(2,("read_ADC %i %i\n", page, end_page - 1));
+  D(3,("read_ADC %i %i\n", page, end_page - 1));
   CHK(err = send_com(DEV::CMD_RDADC, 0, page, end_page - 1));
   for (cnt = 1 + cnt_adc ; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 300/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i PROTOBCM<>::read_ADC %s\n", rep, __FUNCTION__));
+      D(3,("repeat %i PROTOBCM<>::read_ADC %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
@@ -514,7 +514,7 @@ REP:
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0x11) {
@@ -522,16 +522,16 @@ REP:
       WARNTRUE(ack[0] == 0x11 || (pack = 0));
       WARNTRUE(ack[1] == 0x03 || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x\n", 
               err, ack[0], ack[1]));
     }
     else if (ack[0] == 0xf1) {
-      D(2, ("got adc package! page #%d\n", page));
+      D(3, ("got adc package! page #%d\n", page));
       int pack = 1;
       WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
       WARNTRUE(ack[1] == 0x08                     || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
       for (int j = 10; j < 1034 &&
           current_arr_point < size; j += 2){
@@ -559,7 +559,7 @@ REP:
   for (cnt = 1; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i %s\n", rep, __FUNCTION__));
+      D(3,("repeat %i %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
@@ -593,7 +593,7 @@ REP:
   for (cnt = 2; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i PROTOBCM<>::write_read_reg %s\n", 
+      D(3,("repeat %i PROTOBCM<>::write_read_reg %s\n", 
             rep, __FUNCTION__));
       --rep;
       goto REP;
@@ -611,7 +611,7 @@ REP:
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf4) {
@@ -619,7 +619,7 @@ REP:
       WARNTRUE(ack[0] == 0xF4                     || (pack = 0));
       WARNTRUE(ack[1] == regn                     || (pack = 0));
       if (pack == 0)
-        D(2,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
               err, ack[0], ack[1], ack[2], ack[3]));
 
       check_value = (((unsigned int) ack[2]) << 8) | ack[3];
@@ -645,7 +645,7 @@ REP:
   for (cnt = 2; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 2000 + 10 /*, 0*/));
     if (err == 0 && rep > 0) {
-      D(2,("repeat %i %s\n", rep, __FUNCTION__));
+      D(3,("repeat %i %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
