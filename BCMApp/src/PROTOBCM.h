@@ -485,14 +485,38 @@ int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned 
   uint8_t ack[1034];
   int cnt;
   int cnt_adc;
-  int page = start_page;
+  int first_page = -1;
+  int second_page = -1;
   int rep = 2;
+  int cur_page;
   int current_arr_point = 0;
+  int adc_pages_size = end_page - start_page;
+  int adc_pages_num[adc_pages_size];
+  for (int i = 0; i < adc_pages_size; i++){
+    adc_pages_num[i] = i;
+  }
 REP:
-  cnt_adc = (end_page - page) < 0 ?
-    page - end_page : end_page - page;
-  D(3,("read_ADC %i %i\n", page, end_page - 1));
-  CHK(err = send_com(DEV::CMD_RDADC, 0, page, end_page - 1));
+  for (int i = 0; i < adc_pages_size; i++)
+  {
+    if (adc_pages_num[i] != -1)
+    {
+      if (first_page == -1){
+        first_page = i;
+        second_page = i;
+      }
+      else
+      {
+        second_page = i;
+      }
+    }
+    else if (second_page != -1)
+      break;
+  }
+  if (first_page == -1)
+    return err;
+  cnt_adc = second_page - first_page + 1;
+  D(3,("read_ADC %i %i\n", first_page, second_page));
+  CHK(err = send_com(DEV::CMD_RDADC, 0, first_page, second_page));
   for (cnt = 1 + cnt_adc ; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 300/*, 0*/));
     if (err == 0 && rep > 0) {
@@ -526,18 +550,20 @@ REP:
               err, ack[0], ack[1]));
     }
     else if (ack[0] == 0xf1) {
-      D(3, ("got adc package! page #%d\n", page));
+      cur_page = (ack[3] << 8) | (ack[4] & 0xFF); 
+      D(3, ("got adc package! page #%d\n", cur_page));
       int pack = 1;
       WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
       WARNTRUE(ack[1] == 0x08                     || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
+      current_arr_point = cur_page * 512;
       for (int j = 10; j < 1034 &&
           current_arr_point < size; j += 2){
         arr[current_arr_point++] = (ack[j] << 8) | (ack[j+1] & 0xFF);
       }
-      page++;
+     adc_pages_num[cur_page] = -1;
       D(4,("val %i(%04x)\n", ack[10], ack[10]));
     }
   }
@@ -670,10 +696,10 @@ CHK_ERR:
 
 template <typename DEV>
 int PROTOBCM<DEV>::exec_com(unsigned int cmd) {
-			int err = -1;
-			CHK(err = send_com(cmd, 0, 0));
-			CHK(err = ack_to(cmd, 0, 100, 1, 0));
+  int err = -1;
+  CHK(err = send_com(cmd, 0, 0));
+  CHK(err = ack_to(cmd, 0, 100, 1, 0));
 CHK_ERR:
-			return err;
+  return err;
 }
 #endif

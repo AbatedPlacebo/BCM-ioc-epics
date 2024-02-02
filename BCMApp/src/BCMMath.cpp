@@ -95,7 +95,7 @@ int interpolate(TBCM* BCM){
   double x[points_cnt];
   double y[points_cnt];
   int Nroots = find_roots(BCM, rootsx);
-  if (Nroots == 0)
+  if (Nroots < 2)
     return -1;
   gsl_interp_accel *acc;
   const gsl_interp_type *t = gsl_interp_cspline;

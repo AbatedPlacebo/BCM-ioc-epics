@@ -1,6 +1,6 @@
 #ifndef BCMDEV_H
 #define BCMDEV_H
-#define OSCSIZE 65536 
+#define OSCSIZE 65536
 
 #define SEND_MESSAGE_SIZE 6
 
