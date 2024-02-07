@@ -5,13 +5,6 @@
 #include <signal.h>
 #include <execinfo.h>
 
-//#include <errno.h>
-//#include <unistd.h>
-//#include <sys/types.h>
-//#include <sys/inotify.h>
-//#include <sys/stat.h>
-
-
 #include <dbDefs.h>
 #include <registryFunction.h>
 #include <subRecord.h>
@@ -30,24 +23,22 @@
 #include "Timer.h"
 #include "BCMMath.h"
 
-#endif
-
-#include "BCM.h"
-
-
-#include "chk_dt.h"
-#include "chk.h"
-
-
 #define debug_level debug_level_ioc
 extern int debug_level_ioc;
 
 extern int error_timeout;
 
+#include "chk_dt.h"
+#include "chk.h"
+
 // Driver library
+#include "PROTOBCM.h"
 #include "PROTOHI.h"
 #include "BCMDEV.h"
-#include "PROTOBCM.h"
+
+#endif
+
+#include "BCM.h"
 
 
 #define ALIAS(name) name
@@ -60,7 +51,6 @@ extern int error_timeout;
   post_event(CFG_EVENT); \
   epicsEventWaitWithTimeout(BCM.ready_cfg_event, 1.0); \
 } while(0)
-
 
 
 #ifndef EPICS_VERSION_INT

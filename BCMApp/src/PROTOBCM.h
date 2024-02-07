@@ -11,8 +11,21 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
+#include <vector>
+#include <map>
+#include <algorithm>
 #include "chk.h"
 #include "chk_dt.h"
+
+std::vector<int> requestLostPackets(const std::map<int, std::vector<int>>& receivedPackets, int startRange, int endRange) {
+  std::vector<int> lostPackets;
+  for (int i = startRange; i <= endRange; ++i) {
+    if (receivedPackets.find(i) == receivedPackets.end()) {
+      lostPackets.push_back(i);
+    }
+  }
+  return lostPackets;
+}
 
 template <typename DEV>
 class PROTOBCM {
@@ -264,7 +277,7 @@ CHK_ERR:
 }
 
 template <typename DEV>
-int PROTOBCM<DEV>::recv_to(void *_buf, int _size, 
+int PROTOBCM<DEV>::recv_to(void *_buf, int _size,
     int _to_ms, const int unet_flag)
 { ;
   int err = -1;
@@ -485,41 +498,24 @@ int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned 
   uint8_t ack[1034];
   int cnt;
   int cnt_adc;
-  int first_page = -1;
-  int second_page = -1;
+  int first_page = start_page;
+  int second_page = end_page - 1;
   int rep = 2;
   int cur_page;
-  int current_arr_point = 0;
-  int adc_pages_size = end_page - start_page;
-  int adc_pages_num[adc_pages_size];
-  for (int i = 0; i < adc_pages_size; i++){
-    adc_pages_num[i] = i;
-  }
+  int arr_size;
+  int* ptr;
+  std::map<int, std::vector<int>> receivedPacketsMap;
 REP:
-  for (int i = 0; i < adc_pages_size; i++)
-  {
-    if (adc_pages_num[i] != -1)
-    {
-      if (first_page == -1){
-        first_page = i;
-        second_page = i;
-      }
-      else
-      {
-        second_page = i;
-      }
-    }
-    else if (second_page != -1)
-      break;
-  }
-  if (first_page == -1)
-    return err;
-  cnt_adc = second_page - first_page + 1;
   D(3,("read_ADC %i %i\n", first_page, second_page));
   CHK(err = send_com(DEV::CMD_RDADC, 0, first_page, second_page));
+  cnt_adc = second_page - first_page + 1;
+  D(4,("cnt_adc: %d\n", cnt_adc));
   for (cnt = 1 + cnt_adc ; cnt > 0; --cnt) {
-    CHK(err = recv_to(ack, sizeof(ack), 300/*, 0*/));
+    CHK(err = recv_to(ack, sizeof(ack), 3000/*, 0*/));
     if (err == 0 && rep > 0) {
+      std::vector<int> lostPackets = requestLostPackets(receivedPacketsMap, first_page, second_page);
+      first_page = *std::min_element(std::begin(lostPackets), std::end(lostPackets));
+      second_page = *std::max_element(std::begin(lostPackets), std::end(lostPackets));
       D(3,("repeat %i PROTOBCM<>::read_ADC %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
@@ -538,7 +534,7 @@ REP:
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0x11) {
@@ -546,26 +542,34 @@ REP:
       WARNTRUE(ack[0] == 0x11 || (pack = 0));
       WARNTRUE(ack[1] == 0x03 || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x\n",
               err, ack[0], ack[1]));
     }
     else if (ack[0] == 0xf1) {
-      cur_page = (ack[3] << 8) | (ack[4] & 0xFF); 
+      cur_page = (ack[3] << 8) | (ack[4] & 0xFF);
       D(3, ("got adc package! page #%d\n", cur_page));
       int pack = 1;
       WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
       WARNTRUE(ack[1] == 0x08                     || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n",
-              err, ack[0], ack[1], ack[2], ack[3]));
-      current_arr_point = cur_page * 512;
-      for (int j = 10; j < 1034 &&
-          current_arr_point < size; j += 2){
-        arr[current_arr_point++] = (ack[j] << 8) | (ack[j+1] & 0xFF);
+      D(3,("err=%i ack=%02x%02x%02x%02x\n",
+            err, ack[0], ack[1], ack[2], ack[3]));
+      std::vector<int> data;
+      for (int j = 10; j < 1034; j += 2){
+        int value = (ack[j] << 8) | (ack[j+1] & 0xFF);
+        data.push_back(value);
       }
-     adc_pages_num[cur_page] = -1;
+      receivedPacketsMap.insert(std::pair<int, std::vector<int>>{cur_page, data});
       D(4,("val %i(%04x)\n", ack[10], ack[10]));
     }
+  }
+  size = 0;
+  ptr = arr;
+  for (auto it = receivedPacketsMap.begin(); it != receivedPacketsMap.end(); it++)
+  {
+    auto vec = (*it).second;
+    ptr = std::copy(vec.begin(), vec.end(), ptr);
+    arr_size += vec.size();
   }
   return err;
 CHK_ERR:

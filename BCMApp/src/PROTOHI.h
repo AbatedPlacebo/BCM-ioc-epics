@@ -165,7 +165,7 @@ int PROTOHI<DEV, PROTOCOL>::start_measurement()
   int err = -1;
   unsigned int checking_value;
   CHK(err = connection.start());
-  D(2, ("Measurement started!"));
+  D(2, ("Measurement started!\n"));
 CHK_ERR:
   return err;
 }
