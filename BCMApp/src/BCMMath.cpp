@@ -13,7 +13,7 @@ double calcQ(TBCM* BCM){
   for (i = beg; i < end; i += 1){
     integral += fabs(BCM->arr[i]) * WAVEFORM_LENGTH_TIME;
   }
-  BCM->Q = BCM->QK * pow(10.0, -BCM->gain * BCM->gainK / 20.0) * integral;
+  BCM->Q = BCM->QK * pow(10.0, -BCM->k_gain * BCM->k_gain * 2 / 20.0) * integral;
   return BCM->Q;
 }
 

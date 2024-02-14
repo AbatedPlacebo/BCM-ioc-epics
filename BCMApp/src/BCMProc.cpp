@@ -185,8 +185,6 @@ static void BCM_run(void* arg)
 {
   ioc_work = 1;
   bcm_wait_autosave(5.0);
-  BCM.gainK = 2;
-  BCM.QK = 1;
   double val = 0;
   int i;
   double timeout = 0;
@@ -204,9 +202,8 @@ static void BCM_run(void* arg)
         lastConnectionTime = 0;
         timeout = (timeout <= TIMEOUT_LIMIT) ? error_timeout * 2 : TIMEOUT_LIMIT;
         CHK(Device.connect(BCM.hostname, BCM.portno));
-        CHK(Device.set_start_mode(BCM.remote_start));
-        CHK(Device.set_K_gain(BCM.gain));
-        BCM.gainK = BCM.gain * 2;
+        D(0,("Config\n"));
+        CHK(Device.config(BCM));
         BCM.connected = Device.is_connected();
         if (curEvent != nullptr)
           epicsEventSignal(curEvent);
@@ -234,9 +231,11 @@ static void BCM_run(void* arg)
 
     if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
       if (BCM.update_stats == 1){
-        interpolate(&BCM);
-        timeQ(&BCM);
-        calcQ(&BCM);
+        int interp_res = interpolate(&BCM);
+        if (interp_res == 0){
+          timeQ(&BCM);
+          calcQ(&BCM);
+        }
         BCM.update_stats = 0;
         post_event(DATA_EVENT);
       }

@@ -336,26 +336,28 @@ int PROTOBCM<DEV>::wr_reg(unsigned int regn, unsigned int param){
   int rep = 1;
 REP:
   D(3,("write_reg %i %i(%04x)\n", regn, param, param));
-  CHK(err = send_com(DEV::CMD::CMD_WRREG, regn, param)); 
-  for (cnt = 1; cnt > 0; --cnt) { 
+  CHK(err = send_com(DEV::CMD::CMD_WRREG, regn, param));
+  for (cnt = 1; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 50/*, 0*/));
     if (err == 0 && rep > 0) {
       D(3,("repeat %i PROTOBCM<>::write_reg\n", rep));
       --rep;
       goto REP;
     }
-    ++cnt;
-    continue;
+    if (err == 2 && ack[0] == 0x11) {
+      ++cnt;
+      continue;
+    }
+    CHKTRUEMESG(err == sizeof(ack),("err=%i\n", err));
+    CHKTRUE(ack[0] == DEV::CONSTANTS::ACK_PACKET);
+    CHKTRUE(ack[1] == DEV::CMD::CMD_WRREG);
+    CHKTRUE(ack[2] == regn);
+    CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
   }
-  CHKTRUEMESG(err == sizeof(ack),("err=%i\n", err));
-  CHKTRUE(ack[0] == DEV::CONSTANTS::ACK_PACKET);
-  CHKTRUE(ack[1] == DEV::CMD::CMD_WRREG);
-  CHKTRUE(ack[2] == regn);
-  CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
   return err;
 CHK_ERR:
   if (err > 0)
-    D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+    D(3,("err=%i ack=%02x%02x%02x%02x\n",
           err, ack[0], ack[1], ack[2], ack[3]));
   return -1;
 }
@@ -552,8 +554,8 @@ REP:
       WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
       WARNTRUE(ack[1] == 0x08                     || (pack = 0));
       if (pack == 0)
-      D(3,("err=%i ack=%02x%02x%02x%02x\n",
-            err, ack[0], ack[1], ack[2], ack[3]));
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
+              err, ack[0], ack[1], ack[2], ack[3]));
       std::vector<int> data;
       for (int j = 10; j < 1034; j += 2){
         int value = (ack[j] << 8) | (ack[j+1] & 0xFF);
@@ -623,7 +625,7 @@ REP:
   for (cnt = 2; cnt > 0; --cnt) {
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
     if (err == 0 && rep > 0) {
-      D(3,("repeat %i PROTOBCM<>::write_read_reg %s\n", 
+      D(3,("repeat %i PROTOBCM<>::write_read_reg %s\n",
             rep, __FUNCTION__));
       --rep;
       goto REP;
@@ -641,7 +643,7 @@ REP:
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf4) {
@@ -649,7 +651,7 @@ REP:
       WARNTRUE(ack[0] == 0xF4                     || (pack = 0));
       WARNTRUE(ack[1] == regn                     || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
 
       check_value = (((unsigned int) ack[2]) << 8) | ack[3];

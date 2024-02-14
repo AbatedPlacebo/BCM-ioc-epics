@@ -30,12 +30,12 @@ template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
     const char* hostname;
     int port;
     struct encode {
-      uint32_t start_mode(int v){ return v ? 0b10 : 0b00; }
+      uint32_t remote_start(int v){ return v ? 0b10 : 0b00; }
       uint32_t k_gain(int v){ return v ? v & 0b11000 : 0b00000; }
       uint32_t ndel0(int v){ return v ? v & 0x10000 : 0x00000; }
     } encode;
     struct decode {
-      int start_mode(uint32_t r){ return (r & 0b10) == 0b10; }
+      int remote_start(uint32_t r){ return (r & 0b10) == 0b10; }
       float k_gain(uint32_t r){ return r; }
       int n_del0(uint32_t r){ return r; }
     } decode;
@@ -199,9 +199,10 @@ template <typename CFG>
 int PROTOHI<DEV, PROTOCOL>::config(CFG& cfg)
 {
   int err = -1;
-  unsigned int mode = encode.start_mode(cfg.start_mode);
+  unsigned int mode = encode.remote_start(cfg.remote_start);
   unsigned int k_gain = encode.k_gain(cfg.k_gain);
   unsigned int ndel0 = encode.ndel0(cfg.ndel0);
+  D(0,("mode = %d\n",mode));
   CHK(err = connection.wr_reg(DEV::REG::R0, mode));
   CHK(err = connection.wr_reg(DEV::REG::R1, ndel0));
   CHK(err = connection.wr_reg(DEV::REG::R2, k_gain));

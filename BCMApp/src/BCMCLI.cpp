@@ -46,7 +46,7 @@ int main(int argc, char** argv){
   int err = -1;
   Device bcm;
   struct CFG {
-		int start_mode = 1; // 0 - external, 1 - internal
+		int remote_start = 1; // 0 - external, 1 - internal
 		int k_gain = 24;
     int ndel0 = 1;
   } CFG;
