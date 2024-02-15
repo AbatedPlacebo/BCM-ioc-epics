@@ -59,8 +59,8 @@ BCM_SRCS += BCM_registerRecordDeviceDriver.cpp
 BCM_SRCS_DEFAULT += iocMain.cpp
 BCM_SRCS_vxWorks += -nil-
 
-BCM_SRCS += BCMProc.cpp
 BCM_SRCS += BCMMath.cpp
+BCM_SRCS += BCMProc.cpp
 
 # Add support from base/src/vxWorks if needed
 #BCM_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary

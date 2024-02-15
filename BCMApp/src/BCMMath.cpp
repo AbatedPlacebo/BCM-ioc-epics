@@ -17,7 +17,6 @@ double calcQ(TBCM* BCM){
   return BCM->Q;
 }
 
-
 double timeQ(TBCM* BCM){
   BCM->timeQ = 0;
   BCM->timeQY = 0;
@@ -75,16 +74,15 @@ int find_roots(TBCM* BCM, int* roots){
 int interp_points(TBCM* BCM, int* roots, double* x, double* y, int i){
   int total_points = 0;
   int current_point = roots[i];
-  int step = (roots[i+1] - roots[i]) / POINTS_PER_PARAB ;
-  step = step == 1 ? 2 : step;
-  while (current_point <= roots[i+1] && step > 0){
-    x[total_points] = BCM->arrXt[current_point];
-    y[total_points++] = BCM->arr[current_point];
-    current_point += step;
-  }
-  if (total_points > 0){
-    x[total_points-1] = BCM->arrXt[roots[i+1]];
-    y[total_points-1] = BCM->arr[roots[i+1]];
+  int end_point = roots[i+1];
+  auto it = std::minmax_element(BCM->arr + current_point,
+     BCM->arr + end_point);
+  auto absmax = std::abs(*it.first) > std::abs(*it.second) ? it.first : it.second;
+  int offset = 10;
+  int idx = std::distance(BCM->arr, absmax) - offset;
+  for (int i = 0; i < offset * 2; i++) {
+    x[total_points] = BCM->arrXt[idx + i];
+    y[total_points++] = BCM->arr[idx + i];
   }
   return total_points;
 }

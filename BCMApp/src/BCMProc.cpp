@@ -21,7 +21,6 @@
 
 #include "waveFormMap.h"
 #include "Timer.h"
-#include "BCMMath.h"
 
 #define debug_level debug_level_ioc
 extern int debug_level_ioc;
@@ -31,15 +30,16 @@ extern int error_timeout;
 #include "chk_dt.h"
 #include "chk.h"
 
-// Driver library
+
+// Driver libraries
 #include "PROTOBCM.h"
 #include "PROTOHI.h"
 #include "BCMDEV.h"
+#include "BCMMath.h"
 
 #endif
 
 #include "BCM.h"
-
 
 #define ALIAS(name) name
 
