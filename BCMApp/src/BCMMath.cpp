@@ -1,8 +1,5 @@
 #include "BCMMath.h"
 
-#include "chk_dt.h"
-#include "chk.h"
-extern int debug_level;
 
 double calcQ(TBCM* BCM){
   if (BCM->wnd1 > BCM->wnd2){

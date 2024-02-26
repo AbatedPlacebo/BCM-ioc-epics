@@ -91,6 +91,8 @@ BCM_LIBS += autosave
 # Finally link to the EPICS Base libraries
 BCM_LIBS += $(EPICS_BASE_IOC_LIBS)
 
+
+# CLI
 PROD_IOC += BCMCLI
 BCMCLI_SRCS += BCMCLI.cpp
 
@@ -104,7 +106,6 @@ include $(TOP)/configure/RULES
 
 include $(TOP)/genlib/RULES_gen_dbd
 
-BCMProc.dbd: BCMProc.cpp
 -include BCMProc.dbd.dd
 
 # v3.14

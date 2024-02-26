@@ -15,6 +15,11 @@
 
 #include <algorithm>
 
+
+#include "chk_dt.h"
+#include "chk.h"
+extern int debug_level;
+
 #define POINTS_PER_PARAB 5
 #define INTERP_POINTS 5
 #define MIN_TRIGGER 10
