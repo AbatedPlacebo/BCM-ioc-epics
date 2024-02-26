@@ -74,7 +74,7 @@ typedef struct BCMDEV {
     R30,
   };
   static const int REG_SIZE = 32;
-  typedef uint32_t REG_t;
+  typedef uint32_t REGHW_t;
   typedef uint32_t REG_CACHE_MASK_t;
   static const REG_CACHE_MASK_t REG_CACHE_MASK = (1 << REG::STATUS) | (1 << REG::R1);
 } BCMDEV;

@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <algorithm>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_math.h>
@@ -14,10 +13,11 @@
 #include "BCM.h"
 #include "waveFormMap.h"
 
+#include <algorithm>
 
 #define POINTS_PER_PARAB 5
 #define INTERP_POINTS 5
-#define MIN_TRIGGER 50
+#define MIN_TRIGGER 10
 
 double calcQ(TBCM* BCM);
 

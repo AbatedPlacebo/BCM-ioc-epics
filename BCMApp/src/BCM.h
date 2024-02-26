@@ -25,6 +25,7 @@
   decl_zone##_VAR(int,portno,0,65535,CFG_EVENT,2195) \
   decl_zone##_VAR(int,ready_cfg,0,100000000,DATA_EVENT, 0) /* триггер параметров конфига, меняется последним*/ \
   /* параметры измерения */ \
+  decl_zone##_VAR(double,current_coef,0,10000,CFG_EVENT,1.0)  \
   decl_zone##_VAR(int,k_gain,0,24,CFG_EVENT,1)  \
   decl_zone##_VAR(int,ndel0,0,15,CFG_EVENT,0)  \
   decl_zone##_BIN(remote_start, DATA_EVENT, 0) \
@@ -44,7 +45,7 @@
   decl_zone##_VAR_RO(int,error,0,10000000000,CFG_EVENT) /* счетчик ошибок */\
   decl_zone##_VAR_RO(int,gain,0,1000000,CFG_EVENT) \
   decl_zone##_ARR_RO(double,arrXt,OSCSIZE,0,320,DATA_EVENT) \
-  decl_zone##_ARR(double,arr,OSCSIZE,-2048,2048,DATA_EVENT, {0}) \
+  decl_zone##_ARR(double,arr,OSCSIZE,-2048,2048,DATA_EVENT, {0}) /* TODO: Добавить RO */\
   decl_zone##_VAR_RO(double,Q,0,100000,DATA_EVENT) \
   decl_zone##_VAR_RO(double,timeQ,0,320,DATA_EVENT) \
   decl_zone##_VAR_RO(int,timeQY,-2048,2048,DATA_EVENT) \

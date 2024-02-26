@@ -1,10 +1,12 @@
 #include "BCMMath.h"
 
+#include "chk_dt.h"
+#include "chk.h"
+extern int debug_level;
+
 double calcQ(TBCM* BCM){
   if (BCM->wnd1 > BCM->wnd2){
-    double tmp = BCM->wnd1;
-    BCM->wnd1 = BCM->wnd2;
-    BCM->wnd2 = tmp;
+    std::swap(BCM->wnd1, BCM->wnd2);
   }
   double integral = 0.0;
   int i;
@@ -53,13 +55,13 @@ int find_roots(TBCM* BCM, int* roots){
   roots[0] = beg;
   for (int i = beg; i < end; i++){
     current_sign = GSL_SIGN(data[i]);
-    if (fabs(data[i]) > MIN_TRIGGER && root_condition == 0){
+    if (fabs(data[i]) > (MIN_TRIGGER * BCM->current_coef) && root_condition == 0){
       root_count++;
       root_condition = 1;
     }
     if (previous_sign != current_sign){
       roots[root_count] = (fabs(data[i]) < fabs(data[i-1])) ? i : i-1;
-      if (roots[root_count] != roots[root_count-1] && root_condition == 1){
+      if (roots[root_count] > roots[root_count-1] && root_condition == 1){
         root_condition = 0;
         if (root_count == INTERP_POINTS)
           return root_count;
@@ -80,6 +82,7 @@ int interp_points(TBCM* BCM, int* roots, double* x, double* y, int i){
   auto absmax = std::abs(*it.first) > std::abs(*it.second) ? it.first : it.second;
   int offset = 10;
   int idx = std::distance(BCM->arr, absmax) - offset;
+  idx = (idx < 0) ? 0 : idx;
   for (int i = 0; i < offset * 2; i++) {
     x[total_points] = BCM->arrXt[idx + i];
     y[total_points++] = BCM->arr[idx + i];
@@ -122,4 +125,3 @@ int interpolate(TBCM* BCM){
   }
   return 0;
 }
-

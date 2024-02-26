@@ -30,12 +30,12 @@ extern int error_timeout;
 #include "chk_dt.h"
 #include "chk.h"
 
-
 // Driver libraries
 #include "PROTOBCM.h"
 #include "PROTOHI.h"
 #include "BCMDEV.h"
 #include "BCMMath.h"
+#include "cacheDev.h"
 
 #endif
 
@@ -79,13 +79,13 @@ extern int error_timeout;
 #define EXTRA_PHAS_ready_cfg field(PHAS,24)
 #define EXTRA_PHAS_ready field(PHAS,20)
 
-
-/* PLACE_EXTRA_INSERT */
+/* Extra parameters for PV */
 
 #define EXTRA_timeQ field(PREC,3) field(EGU,"us")
 #define EXTRA_Q field(PREC,3) field(EGU,"nQ")
 #define EXTRA_timeQY field(PREC,3) field(EGU,"mA")
 #define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
+#define EXTRA_current_coef field(PREC,3)
 
 #include"gen_db.h"
 #elif defined(GEN_DBD)
@@ -125,11 +125,10 @@ extern int error_timeout;
 
 TBCM BCM;
 
-PROTOHI<BCMDEV, PROTOBCM> Device;
+PROTOHI<BCMDEV, SCACHE_RW<PROTOBCM>::type, TBCM> Device;
 
 epicsEventId curEvent = nullptr;
 
-Timer timeoutConnection;
 Timer lastConnectionTime;
 Timer lastMeasurement;
 
@@ -202,7 +201,6 @@ static void BCM_run(void* arg)
         lastConnectionTime = 0;
         timeout = (timeout <= TIMEOUT_LIMIT) ? error_timeout * 2 : TIMEOUT_LIMIT;
         CHK(Device.connect(BCM.hostname, BCM.portno));
-        D(0,("Config\n"));
         CHK(Device.config(BCM));
         BCM.connected = Device.is_connected();
         if (curEvent != nullptr)
@@ -219,7 +217,6 @@ static void BCM_run(void* arg)
       epicsEventWaitWithTimeout(work_event, 1.0);
       continue; // единственное что мы можем здесь сделать это проверить необходимость подключения
     }
-
     if(epicsEventTryWait(curEvent = BCM.wndBeg_event) == epicsEventWaitOK ||
         epicsEventTryWait(curEvent = BCM.wndLen_event) == epicsEventWaitOK) {
       if (BCM.wndBeg > BCM.wndLen){
@@ -245,6 +242,7 @@ static void BCM_run(void* arg)
     if (BCM.osc_mode){
         CHK(Device.start_measurement());
         CHK(Device.get_ADC_buffer(BCM.arr, BCM.arr_ne));
+        WFM(BCM.arr) *= BCM.current_coef;
         lastMeasurement = 0;
         int interp_res = interpolate(&BCM);
         if (interp_res == 0){
@@ -301,8 +299,8 @@ DECL_C_VAR(int,debug_sub_exec,0)
 DECL_C_VAR(int,error_timeout,0)
 #define DECL_GLOBAL_PREF BCM.
 DECL_BCM(DECL_GLOBAL)
-  //DECL_VAR_FUNC(int,command,0,3)
-  //MEAS_LIST(CA_MEAS_DATA)
+//DECL_VAR_FUNC(int,command,0,3)
+//MEAS_LIST(CA_MEAS_DATA)
 DECL_FUNC_i(BCM_init)
 
 

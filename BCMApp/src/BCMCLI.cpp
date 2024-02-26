@@ -40,16 +40,18 @@ void Usage()
 
 #define KEY(key) strcmp(#key, argv[arg]) == 0
 
-using Device = PROTOHI<BCMDEV, PROTOBCM>;
+struct TCFG {
+  int remote_start = 1; // 0 - external, 1 - internal
+  int k_gain = 24;
+  int ndel0 = 1;
+} CFG;
+
+
+using Device = PROTOHI<BCMDEV, PROTOBCM, TCFG>;
 
 int main(int argc, char** argv){
   int err = -1;
   Device bcm;
-  struct CFG {
-		int remote_start = 1; // 0 - external, 1 - internal
-		int k_gain = 24;
-    int ndel0 = 1;
-  } CFG;
   arg0 = argv[0];
   D(4,("count = %d\n", argc));
   for(int arg = 0; arg < argc; ++arg) {

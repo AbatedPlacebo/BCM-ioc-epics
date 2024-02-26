@@ -5,7 +5,7 @@
 
 extern int debug_level;
 
-template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
+template <typename DEV, template<typename> typename PROTOCOL, typename PV> class PROTOHI {
   public:
     using INFO = DEV;
     PROTOHI();
@@ -27,6 +27,7 @@ template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
     ~PROTOHI();
   private:
     PROTOCOL<DEV> connection;
+    PV pv;
     const char* hostname;
     int port;
     struct encode {
@@ -42,11 +43,11 @@ template <typename DEV, template<typename> typename PROTOCOL> class PROTOHI {
 };
 
 
-template <typename DEV, template<typename> typename PROTOCOL>
-PROTOHI<DEV, PROTOCOL>::PROTOHI() { }
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+PROTOHI<DEV, PROTOCOL, PV>::PROTOHI() { }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::start_generator()
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::start_generator()
 {
   int err = -1;
   int frequency = 0;
@@ -69,13 +70,13 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-PROTOHI<DEV, PROTOCOL>::~PROTOHI(){
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+PROTOHI<DEV, PROTOCOL, PV>::~PROTOHI(){
   disconnect();
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::connect(const char* _hostname, int _port)
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::connect(const char* _hostname, int _port)
 {
   hostname = _hostname;
   port = _port;
@@ -104,13 +105,13 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::is_connected() const{
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::is_connected() const{
   return connection.is_connected();
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::disconnect()
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::disconnect()
 {
   int err = -1;
   CHK(err = connection.disconnect());
@@ -121,8 +122,8 @@ CHK_ERR:
 }
 
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::set_start_mode(bool mode){
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::set_start_mode(bool mode){
   int err = -1;
   unsigned int value = mode << 1;
   CHK(err = connection.wrrd_reg(DEV::REG::R0, &value));
@@ -132,8 +133,8 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::get_ADC_buffer(double* buffer, int size){
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::get_ADC_buffer(double* buffer, int size){
   int err = -1;
   int arr[size];
   int pages_total = (int)((size - 1)/512) + 1;
@@ -147,8 +148,8 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::set_K_gain(unsigned int value)
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::set_K_gain(unsigned int value)
 {
   int err = -1;
   unsigned int checking_value;
@@ -159,8 +160,8 @@ CHK_ERR:
 }
 
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::start_measurement()
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::start_measurement()
 {
   int err = -1;
   unsigned int checking_value;
@@ -171,8 +172,8 @@ CHK_ERR:
 }
 
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::read_register(unsigned int regn,
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::read_register(unsigned int regn,
     unsigned int *param)
 {
   int err = -1;
@@ -183,8 +184,8 @@ CHK_ERR:
 }
 
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::write_register(unsigned int regn,
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::write_register(unsigned int regn,
     unsigned int param)
 {
   int err = -1;
@@ -194,9 +195,9 @@ CHK_ERR:
   return err;
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
 template <typename CFG>
-int PROTOHI<DEV, PROTOCOL>::config(CFG& cfg)
+int PROTOHI<DEV, PROTOCOL, PV>::config(CFG& cfg)
 {
   int err = -1;
   unsigned int mode = encode.remote_start(cfg.remote_start);
@@ -211,8 +212,8 @@ CHK_ERR:
   return err < 0 ? err : -1;
 }
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::print_all_regs(){
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::print_all_regs(){
   int err = -1;
   uint32_t r;
   typename DEV::REG_t regs[DEV::REG_SIZE];
@@ -234,8 +235,8 @@ CHK_ERR:
 }
 
 
-template <typename DEV, template<typename> typename PROTOCOL>
-int PROTOHI<DEV, PROTOCOL>::execute_command(unsigned int com)
+template <typename DEV, template<typename> typename PROTOCOL, typename PV>
+int PROTOHI<DEV, PROTOCOL, PV>::execute_command(unsigned int com)
 {
   int err = -1;
   CHK(err = connection.exec_com(com));
