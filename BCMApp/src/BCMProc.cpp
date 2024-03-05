@@ -127,6 +127,8 @@ TBCM BCM;
 
 PROTOHI<BCMDEV, SCACHE_RW<PROTOBCM>::type, TBCM> Device;
 
+SignalProcessing<TBCM> Math(&BCM);
+
 epicsEventId curEvent = nullptr;
 
 Timer lastConnectionTime;
@@ -187,6 +189,7 @@ static void BCM_run(void* arg)
   double val = 0;
   int i;
   double timeout = 0;
+  const double WAVEFORM_LENGTH_TIME = (double)BCMDEV::MAX_OSC_TIME / (double)BCMDEV::MAX_POINTS;
   WFM(BCM.arr).resize(OSCSIZE);
   WFM(BCM.arrXt).linspace(WAVEFORM_LENGTH_TIME, WAVEFORM_LENGTH_TIME, WFM(BCM.arr).size());
   Timer t0;
@@ -228,27 +231,18 @@ static void BCM_run(void* arg)
 
     if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
       if (BCM.update_stats == 1){
-        int interp_res = interpolate(&BCM);
-        if (interp_res == 0){
-          timeQ(&BCM);
-          calcQ(&BCM);
-        }
+        Math.doAll();
         BCM.update_stats = 0;
         post_event(DATA_EVENT);
       }
       continue;
     }
-
     if (BCM.osc_mode){
         CHK(Device.start_measurement());
-        CHK(Device.get_ADC_buffer(BCM.arr, BCM.arr_ne));
+        CHK(Device.get_ADC_buffer(WFM(BCM.arr), BCM.wndBeg, BCM.wndLen));
         WFM(BCM.arr) *= BCM.current_coef;
         lastMeasurement = 0;
-        int interp_res = interpolate(&BCM);
-        if (interp_res == 0){
-          timeQ(&BCM);
-          calcQ(&BCM);
-        }
+        Math.doAll();
         BCM.osc_mode = 0;
         BCM.osc_mode_ready++;
         post_event(DATA_EVENT);
@@ -263,6 +257,7 @@ static void BCM_run(void* arg)
         continue;
       }
     }
+    CHK(Device.config(BCM));
     continue;
 CHK_ERR:
     Device.disconnect();

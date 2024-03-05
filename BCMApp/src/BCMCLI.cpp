@@ -43,7 +43,9 @@ void Usage()
 struct TCFG {
   int remote_start = 1; // 0 - external, 1 - internal
   int k_gain = 24;
+  int gain = 2;
   int ndel0 = 1;
+  int arr[65536];
 } CFG;
 
 
@@ -90,7 +92,7 @@ int main(int argc, char** argv){
 			CHKTRUEMESG(sscanf(argv[arg+1], "%i", &size) == 1, ("Error: %s %s", argv[arg], argv[arg+1]));
       D(0, ("size = %d\n", size));
       double arr[size];
-			CHK(err = bcm.get_ADC_buffer(arr, size));
+			//CHK(err = bcm.get_ADC_buffer(arr, size));
       ++arg;
 		}
 		else if(KEY(-r)) {

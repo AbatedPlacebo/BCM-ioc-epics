@@ -2,6 +2,7 @@
 #define PROTOHI_H
 
 #include "chk.h"
+#include "waveFormMap.h"
 
 extern int debug_level;
 
@@ -9,7 +10,7 @@ template <typename DEV, template<typename> typename PROTOCOL, typename PV> class
   public:
     using INFO = DEV;
     PROTOHI();
-    int get_ADC_buffer(double* buffer, int size);
+    int get_ADC_buffer(WFMtype(PV::arr) array, double wndBeg, double wndEnd);
     int read_register(unsigned int regn,
         unsigned int *param);
     int write_register(unsigned int regn,
@@ -28,12 +29,13 @@ template <typename DEV, template<typename> typename PROTOCOL, typename PV> class
   private:
     PROTOCOL<DEV> connection;
     PV pv;
+    const double WAVEFORM_LENGTH_TIME = (double)DEV::MAX_OSC_TIME / (double)DEV::MAX_POINTS;
     const char* hostname;
     int port;
     struct encode {
       uint32_t remote_start(int v){ return v ? 0b10 : 0b00; }
-      uint32_t k_gain(int v){ return v ? v & 0b11000 : 0b00000; }
-      uint32_t ndel0(int v){ return v ? v & 0x10000 : 0x00000; }
+      uint32_t k_gain(int v){ return v ? v & 0b11111 : 0b00000; }
+      uint32_t ndel0(int v){ return v ? v & 0xFF : 0x00; }
     } encode;
     struct decode {
       int remote_start(uint32_t r){ return (r & 0b10) == 0b10; }
@@ -134,14 +136,17 @@ CHK_ERR:
 }
 
 template <typename DEV, template<typename> typename PROTOCOL, typename PV>
-int PROTOHI<DEV, PROTOCOL, PV>::get_ADC_buffer(double* buffer, int size){
+int PROTOHI<DEV, PROTOCOL, PV>::get_ADC_buffer(WFMtype(PV::arr) array, double wndBeg, double wndEnd){
   int err = -1;
-  int arr[size];
-  int pages_total = (int)((size - 1)/512) + 1;
-  CHKTRUE(size > 0 && size <= 65536);
-  CHK(err = connection.rd_ADC(arr, size, 0, pages_total));
+  int firstPage = wndBeg / (WAVEFORM_LENGTH_TIME * (double)DEV::TOTAL_PAGE_POINTS);
+  int lastPage = (wndEnd / (WAVEFORM_LENGTH_TIME * (double)DEV::TOTAL_PAGE_POINTS)) - 1;
+  array.resize((lastPage - firstPage + 1) * DEV::TOTAL_PAGE_POINTS);
+  int size = array.size();
+  int buffer[size];
+  CHKTRUE(wndBeg >= 0 && wndEnd <= 320);
+  CHK(err = connection.rd_ADC(buffer, array.size(), firstPage, lastPage));
   for (int i = 0; i < size; i++){
-    buffer[i] = (double)arr[i] - 2048;
+    array[i] = (double)buffer[i] - 2048;
   }
   return err;
 CHK_ERR:
@@ -201,9 +206,9 @@ int PROTOHI<DEV, PROTOCOL, PV>::config(CFG& cfg)
 {
   int err = -1;
   unsigned int mode = encode.remote_start(cfg.remote_start);
+  cfg.k_gain = cfg.gain / 2;
   unsigned int k_gain = encode.k_gain(cfg.k_gain);
   unsigned int ndel0 = encode.ndel0(cfg.ndel0);
-  D(0,("mode = %d\n",mode));
   CHK(err = connection.wr_reg(DEV::REG::R0, mode));
   CHK(err = connection.wr_reg(DEV::REG::R1, ndel0));
   CHK(err = connection.wr_reg(DEV::REG::R2, k_gain));

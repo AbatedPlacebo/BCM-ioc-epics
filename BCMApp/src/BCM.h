@@ -26,7 +26,7 @@
   decl_zone##_VAR(int,ready_cfg,0,100000000,DATA_EVENT, 0) /* триггер параметров конфига, меняется последним*/ \
   /* параметры измерения */ \
   decl_zone##_VAR(double,current_coef,0,10000,CFG_EVENT,1.0)  \
-  decl_zone##_VAR(int,k_gain,0,24,CFG_EVENT,1)  \
+  decl_zone##_VAR(int,gain,0,1000000,CFG_EVENT, 2) \
   decl_zone##_VAR(int,ndel0,0,15,CFG_EVENT,0)  \
   decl_zone##_BIN(remote_start, DATA_EVENT, 0) \
   decl_zone##_VAR(double,wnd1,0.0,320.0,DATA_EVENT,0) /* 1-ая граница интегрирования */ \
@@ -43,12 +43,12 @@
   /* результат измерения обычно здесть только _RO переменные */ \
   decl_zone##_VAR_RO(int,osc_mode_ready,0,10000000000,CFG_EVENT) /* счетчик успешных выполнений */ \
   decl_zone##_VAR_RO(int,error,0,10000000000,CFG_EVENT) /* счетчик ошибок */\
-  decl_zone##_VAR_RO(int,gain,0,1000000,CFG_EVENT) \
   decl_zone##_ARR_RO(double,arrXt,OSCSIZE,0,320,DATA_EVENT) \
   decl_zone##_ARR(double,arr,OSCSIZE,-2048,2048,DATA_EVENT, {0}) /* TODO: Добавить RO */\
   decl_zone##_VAR_RO(double,Q,0,100000,DATA_EVENT) \
+  decl_zone##_VAR_RO(int,k_gain,0,24,CFG_EVENT)  \
   decl_zone##_VAR_RO(double,timeQ,0,320,DATA_EVENT) \
-  decl_zone##_VAR_RO(int,timeQY,-2048,2048,DATA_EVENT) \
+  decl_zone##_VAR_RO(double,timeQY,-2048,2048,DATA_EVENT) \
   decl_zone##_ARR_RO(double,parab0,100,-2048,2048,DATA_EVENT) \
   decl_zone##_ARR_RO(double,parab1,100,-2048,2048,DATA_EVENT) \
   decl_zone##_ARR_RO(double,parab2,100,-2048,2048,DATA_EVENT) \

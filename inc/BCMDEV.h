@@ -4,15 +4,11 @@
 
 #define SEND_MESSAGE_SIZE 6
 
-#define MAX_PAGE 127
 #define MIN_PAGE 0
 #define PAGE_POINTS_START 10
 
-#define PAGE_POINTS_SIZE 512
-
 #define MAX_POINT_VALUE 2048
 #define MIN_POINT_VALUE -2048
-#define MAX_POINTS (PAGE_POINTS_SIZE * (MAX_PAGE + 1))
 
 #define ACK_MESSAGE_SIZE 4
 
@@ -20,18 +16,20 @@
 
 #define MAX_BYTE_BUFFER MAX_RECV_MESSAGE_SIZE * (MAX_PAGE + 1)
 
-#define WAVEFORM_LENGTH_TIME (320.0 / (double)MAX_POINTS)
-
 
 #include <stdint.h>
 
 typedef struct BCMDEV {
   enum CONSTANTS {
+    TOTAL_PAGE_POINTS = 512,
+    MAX_PAGE = 127,
     ACK_PACKET = 0x10,
     ACK_LENGTH = 4,
     ADC_LENGTH = 1034,
     CONF_LENGTH = 2,
     CONF_PACKET = 0x11,
+    MAX_POINTS = TOTAL_PAGE_POINTS * (MAX_PAGE + 1),
+    MAX_OSC_TIME = 320,
   };
   enum CMD
   {
@@ -76,7 +74,9 @@ typedef struct BCMDEV {
   static const int REG_SIZE = 32;
   typedef uint32_t REGHW_t;
   typedef uint32_t REG_CACHE_MASK_t;
-  static const REG_CACHE_MASK_t REG_CACHE_MASK = (1 << REG::STATUS) | (1 << REG::R1);
+  static const REG_CACHE_MASK_t REG_CACHE_MASK =
+    (1 << REG::R0) | (1 << REG::R1) |
+    (1 << REG::R2) | (1 << REG::R3);
 } BCMDEV;
 
 #endif

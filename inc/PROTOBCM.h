@@ -371,16 +371,16 @@ int PROTOBCM<DEV>::rd_reg(unsigned int regn, unsigned int *param) {
 REP:
   D(3,("read_reg %i\n", regn));
   CHK(err = send_com(DEV::CMD::CMD_RDREG, regn, 0));
-  for (cnt = 2; cnt > 0; --cnt) 
+  for (cnt = 2; cnt > 0; --cnt)
   {
     CHK(err = recv_to(ack, sizeof(ack), 10/*, 0*/));
-    if (err == 0 && rep > 0) 
+    if (err == 0 && rep > 0)
     {
       D(3,("repeat %i PROTOBCM<>::read_reg %s\n", rep, __FUNCTION__));
       --rep;
       goto REP;
     }
-    if (err == 2 && ack[0] == 0x11) 
+    if (err == 2 && ack[0] == 0x11)
     {
       ++cnt;
       continue;
@@ -394,7 +394,7 @@ REP:
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0xf4) {
@@ -402,7 +402,7 @@ REP:
       WARNTRUE(ack[0] == 0xF4 || (pack = 0));
       WARNTRUE(ack[1] == regn || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
       *param = (((unsigned int) ack[2]) << 8) | ack[3];
       D(3,("val %i(%04x)\n", *param, *param));
@@ -475,7 +475,7 @@ REP:
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
     else if (ack[0] == 0x11) {
@@ -483,7 +483,7 @@ REP:
       WARNTRUE(ack[0] == 0x11 || (pack = 0));
       WARNTRUE(ack[1] == 0x03 || (pack = 0));
       if (pack == 0)
-        D(3,("err=%i ack=%02x%02x\n", 
+        D(3,("err=%i ack=%02x%02x\n",
               err, ack[0], ack[1]));
     }
   }
@@ -501,7 +501,7 @@ int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned 
   int cnt;
   int cnt_adc;
   int first_page = start_page;
-  int second_page = end_page - 1;
+  int second_page = end_page;
   int rep = 2;
   int cur_page;
   int arr_size;
@@ -509,6 +509,7 @@ int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned 
   std::map<int, std::vector<int>> receivedPacketsMap;
 REP:
   D(3,("read_ADC %i %i\n", first_page, second_page));
+    CHKTRUE(first_page >= 0 && second_page <= 127);
   CHK(err = send_com(DEV::CMD_RDADC, 0, first_page, second_page));
   cnt_adc = second_page - first_page + 1;
   D(4,("cnt_adc: %d\n", cnt_adc));
@@ -698,7 +699,6 @@ CHK_ERR:
     CUNET_PRINT(2, "ack", ack, err);
   return -1;
 }
-
 
 template <typename DEV>
 int PROTOBCM<DEV>::exec_com(unsigned int cmd) {
