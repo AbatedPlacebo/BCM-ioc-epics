@@ -44,12 +44,12 @@ class SignalProcessing {
 
 template <typename T>
 double SignalProcessing<T>::calcQ(){
-  if (BCM->wnd1 > BCM->wnd2){
-    std::swap(BCM->wnd1, BCM->wnd2); }
+  if (BCM->wndBeg > BCM->wndEnd){
+    std::swap(BCM->wndBeg, BCM->wndEnd); }
   double integral = 0.0;
   int i;
-  int beg = round(BCM->wnd1 / WAVEFORM_LENGTH_TIME);
-  int end = round(BCM->wnd2 / WAVEFORM_LENGTH_TIME);
+  int beg = round(BCM->wndBeg / WAVEFORM_LENGTH_TIME);
+  int end = round(BCM->wndEnd / WAVEFORM_LENGTH_TIME);
   for (i = beg; i < end; i += 1){
     integral += fabs(BCM->arr[i]) * WAVEFORM_LENGTH_TIME;
   }
@@ -89,8 +89,8 @@ int SignalProcessing<T>::find_roots(int* roots){
   int root_condition = 0;
   WFMtype(BCM->arr) data = WFM(BCM->arr);
   previous_sign = current_sign = GSL_SIGN(data[0]);
-  int beg = round(BCM->wnd1 / WAVEFORM_LENGTH_TIME);
-  int end = round(BCM->wnd2 / WAVEFORM_LENGTH_TIME);
+  int beg = round(BCM->wndBeg / WAVEFORM_LENGTH_TIME);
+  int end = round(BCM->wndEnd / WAVEFORM_LENGTH_TIME);
   roots[0] = beg;
   for (int i = beg; i < end; i++){
     current_sign = GSL_SIGN(data[i]);

@@ -29,12 +29,10 @@
   decl_zone##_VAR(int,gain,0,1000000,CFG_EVENT, 2) \
   decl_zone##_VAR(int,ndel0,0,15,CFG_EVENT,0)  \
   decl_zone##_BIN(remote_start, DATA_EVENT, 0) \
-  decl_zone##_VAR(double,wnd1,0.0,320.0,DATA_EVENT,0) /* 1-ая граница интегрирования */ \
-  decl_zone##_VAR(double,wnd2,0.0,320.0,DATA_EVENT,0) /* 2-ая граница интегрирования */ \
   decl_zone##_BIN(minmax, DATA_EVENT, 0) \
   decl_zone##_BIN(update_stats, DATA_EVENT, 0) \
   decl_zone##_VAR(double,wndBeg,0.0,320.0,DATA_EVENT,0.0) \
-  decl_zone##_VAR(double,wndLen,0.0,320.0,DATA_EVENT,320.0) \
+  decl_zone##_VAR(double,wndEnd,0.0,320.0,DATA_EVENT,320.0) \
   decl_zone##_VAR(double,QK,0,100000,DATA_EVENT,1) \
   decl_zone##_BIN(osc_mode,CFG_EVENT, 0) /* триггер запроса результата */ \
   decl_zone##_BIN(osc_auto,CFG_EVENT, 0) /* триггер запроса результата */ \
