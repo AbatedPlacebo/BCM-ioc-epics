@@ -19,9 +19,7 @@
 #include "chk.h"
 extern int debug_level;
 
-#define POINTS_PER_PARAB 5
 #define INTERP_POINTS 5
-#define MIN_TRIGGER 10
 
 template <typename T>
 class SignalProcessing {
@@ -94,7 +92,7 @@ int SignalProcessing<T>::find_roots(int* roots){
   roots[0] = beg;
   for (int i = beg; i < end; i++){
     current_sign = GSL_SIGN(data[i]);
-    if (fabs(data[i]) > (MIN_TRIGGER * BCM->current_coef) && root_condition == 0){
+    if (fabs(data[i]) > (BCM->interpolation_trigger_value * BCM->current_coef) && root_condition == 0){
       root_count++;
       root_condition = 1;
     }
@@ -120,11 +118,9 @@ int SignalProcessing<T>::interp_points(int* roots, double* x, double* y, int i){
   int end_point = roots[i+1];
   auto it = WFM(BCM->arr).minmax(current_point, end_point);
   auto absmax = std::abs(*it.first) > std::abs(*it.second) ? it.first : it.second;
-  int offset = 10;
-  int idx = WFM(BCM->arr).distance(absmax) - offset;
+  int idx = WFM(BCM->arr).distance(absmax) - BCM->parab_offset;
   idx = (idx < 0) ? 0 : idx;
-
-  for (int i = 0; i < offset * 2; i++) {
+  for (int i = 0; i < BCM->parab_offset * 2; i++) {
     x[total_points] = BCM->arrXt[idx + i];
     y[total_points++] = BCM->arr[idx + i];
   }
@@ -134,7 +130,7 @@ int SignalProcessing<T>::interp_points(int* roots, double* x, double* y, int i){
 template <typename T>
 int SignalProcessing<T>::interpolate(){
 
-  int points_cnt = POINTS_PER_PARAB * INTERP_POINTS;
+  int points_cnt = BCM->points_per_parab * INTERP_POINTS;
   int rootsx[INTERP_POINTS];
   double x[points_cnt];
   double y[points_cnt];

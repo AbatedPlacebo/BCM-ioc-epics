@@ -24,8 +24,12 @@
   decl_zone##_STR(hostname, 20, "192.168.147.9") \
   decl_zone##_VAR(int,portno,0,65535,CFG_EVENT,2195) \
   decl_zone##_VAR(int,ready_cfg,0,100000000,DATA_EVENT, 0) /* триггер параметров конфига, меняется последним*/ \
-  /* параметры измерения */ \
+  /* параметры интерполяции */ \
   decl_zone##_VAR(double,current_coef,0,10000,CFG_EVENT,1.0)  \
+  decl_zone##_VAR(double,interpolation_trigger_value,0,10000,CFG_EVENT,1.0)  \
+  decl_zone##_VAR(int,points_per_parab,2,10000,CFG_EVENT,5)  \
+  decl_zone##_VAR(int,parab_offset,0,100,CFG_EVENT,10)  \
+  /* параметры измерения */ \
   decl_zone##_VAR(int,gain,0,1000000,CFG_EVENT, 2) \
   decl_zone##_VAR(int,ndel0,0,15,CFG_EVENT,0)  \
   decl_zone##_BIN(remote_start, DATA_EVENT, 0) \

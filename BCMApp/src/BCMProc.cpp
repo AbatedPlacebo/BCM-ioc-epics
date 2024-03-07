@@ -86,6 +86,7 @@ extern int error_timeout;
 #define EXTRA_timeQY field(PREC,3) field(EGU,"mA")
 #define EXTRA_minmax field(ZNAM,"MIN") field(ONAM,"MAX")
 #define EXTRA_current_coef field(PREC,3)
+#define EXTRA_gain field(EGU, "dB")
 
 #include"gen_db.h"
 #elif defined(GEN_DBD)
