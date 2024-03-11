@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 typedef struct BCMDEV {
-  enum CONSTANTS {
+  enum CONST {
     TOTAL_PAGE_POINTS = 512,
     MAX_PAGE = 127,
     ACK_PACKET = 0x10,
@@ -47,7 +47,7 @@ typedef struct BCMDEV {
   };
   enum REG{
     STATUS,
-    R0 = 0,
+    REG_MODE = 0,
     R1 = 1,
     R2 = 2,
     R3 = 3,
@@ -75,7 +75,7 @@ typedef struct BCMDEV {
   typedef uint32_t REGHW_t;
   typedef uint32_t REG_CACHE_MASK_t;
   static const REG_CACHE_MASK_t REG_CACHE_MASK =
-    (1 << REG::R0) | (1 << REG::R1) |
+    (1 << REG::REG_MODE) | (1 << REG::R1) |
     (1 << REG::R2) | (1 << REG::R3);
 } BCMDEV;
 

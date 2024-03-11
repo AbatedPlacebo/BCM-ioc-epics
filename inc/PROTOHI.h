@@ -209,7 +209,7 @@ int PROTOHI<DEV, PROTOCOL, PV>::config(CFG& cfg)
   cfg.k_gain = cfg.gain / 2;
   unsigned int k_gain = encode.k_gain(cfg.k_gain);
   unsigned int ndel0 = encode.ndel0(cfg.ndel0);
-  CHK(err = connection.wr_reg(DEV::REG::R0, mode));
+  CHK(err = connection.wr_reg(DEV::REG::REG_MODE, mode));
   CHK(err = connection.wr_reg(DEV::REG::R1, ndel0));
   CHK(err = connection.wr_reg(DEV::REG::R2, k_gain));
   return 0;
