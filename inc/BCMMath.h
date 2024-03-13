@@ -12,6 +12,7 @@
 
 #include "BCM.h"
 #include "waveFormMap.h"
+#include "K500.h"
 
 #include <algorithm>
 
@@ -37,7 +38,6 @@ class SignalProcessing {
 
   private:
     T* BCM;
-    const double WAVEFORM_LENGTH_TIME = (double)BCMDEV::MAX_OSC_TIME / (double)BCMDEV::MAX_POINTS;
 };
 
 template <typename T>
@@ -120,7 +120,7 @@ int SignalProcessing<T>::interp_points(int* roots, double* x, double* y, int i){
   auto absmax = std::abs(*it.first) > std::abs(*it.second) ? it.first : it.second;
   int idx = WFM(BCM->arr).distance(absmax) - BCM->parab_offset;
   idx = (idx < 0) ? 0 : idx;
-  for (int i = 0; i < BCM->parab_offset * 2; i++) {
+  for (int i = 0; i < BCM->parab_offset * 2 && i < INTERP_POINTS; i++) {
     x[total_points] = BCM->arrXt[idx + i];
     y[total_points++] = BCM->arr[idx + i];
   }

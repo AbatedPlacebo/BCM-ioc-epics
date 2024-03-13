@@ -30,6 +30,8 @@ extern int error_timeout;
 #include "chk_dt.h"
 #include "chk.h"
 
+#include "K500.h"
+
 // Driver libraries
 #include "PROTOBCM.h"
 #include "PROTOHI.h"
@@ -190,7 +192,6 @@ static void BCM_run(void* arg)
   double val = 0;
   int i;
   double timeout = 0;
-  const double WAVEFORM_LENGTH_TIME = (double)BCMDEV::MAX_OSC_TIME / (double)BCMDEV::MAX_POINTS;
   WFM(BCM.arr).resize(OSCSIZE);
   WFM(BCM.arrXt).linspace(WAVEFORM_LENGTH_TIME, WAVEFORM_LENGTH_TIME, WFM(BCM.arr).size());
   Timer t0;

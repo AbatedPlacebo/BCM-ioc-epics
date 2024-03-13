@@ -1,36 +1,9 @@
 #ifndef BCMDEV_H
 #define BCMDEV_H
-#define OSCSIZE 65536
-
-#define SEND_MESSAGE_SIZE 6
-
-#define MIN_PAGE 0
-#define PAGE_POINTS_START 10
-
-#define MAX_POINT_VALUE 2048
-#define MIN_POINT_VALUE -2048
-
-#define ACK_MESSAGE_SIZE 4
-
-#define MAX_RECV_MESSAGE_SIZE 1034
-
-#define MAX_BYTE_BUFFER MAX_RECV_MESSAGE_SIZE * (MAX_PAGE + 1)
-
 
 #include <stdint.h>
 
 typedef struct BCMDEV {
-  enum CONST {
-    TOTAL_PAGE_POINTS = 512,
-    MAX_PAGE = 127,
-    ACK_PACKET = 0x10,
-    ACK_LENGTH = 4,
-    ADC_LENGTH = 1034,
-    CONF_LENGTH = 2,
-    CONF_PACKET = 0x11,
-    MAX_POINTS = TOTAL_PAGE_POINTS * (MAX_PAGE + 1),
-    MAX_OSC_TIME = 320,
-  };
   enum CMD
   {
     CMD_WRREG     = 0x00,

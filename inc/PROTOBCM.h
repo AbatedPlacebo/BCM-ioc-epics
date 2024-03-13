@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "chk.h"
 #include "chk_dt.h"
+#include "K500.h"
 
 std::vector<int> requestLostPackets(const std::map<int, std::vector<int>>& receivedPackets, int startRange, int endRange) {
   std::vector<int> lostPackets;
@@ -264,7 +265,7 @@ REP:
       continue;
     }
     CHKTRUEMESG(err == sizeof(ack),("err=%i\n", err));
-    CHKTRUE(ack[0] == DEV::CONST::ACK_PACKET);
+    CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == cmd);
     CHKTRUE(ack[2] == regn);
     CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
@@ -331,7 +332,7 @@ int PROTOBCM<DEV>::cunet_print(int _debug_level, const char* str, uint8_t* buf, 
 template <typename DEV>
 int PROTOBCM<DEV>::wr_reg(unsigned int regn, unsigned int param){
   int err = -1;
-  uint8_t ack[DEV::CONST::ACK_LENGTH];
+  uint8_t ack[ACK_LENGTH];
   int cnt;
   int rep = 1;
 REP:
@@ -349,7 +350,7 @@ REP:
       continue;
     }
     CHKTRUEMESG(err == sizeof(ack),("err=%i\n", err));
-    CHKTRUE(ack[0] == DEV::CONST::ACK_PACKET);
+    CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD::CMD_WRREG);
     CHKTRUE(ack[2] == regn);
     CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
@@ -365,7 +366,7 @@ CHK_ERR:
 template <typename DEV>
 int PROTOBCM<DEV>::rd_reg(unsigned int regn, unsigned int *param) {
   int err = -1;
-  uint8_t ack[DEV::CONST::ACK_LENGTH];
+  uint8_t ack[ACK_LENGTH];
   int cnt;
   int rep = 5;
 REP:
@@ -386,10 +387,10 @@ REP:
       continue;
     }
     CHKTRUE(err == sizeof(ack));
-    CHKTRUE(ack[0] == 0xF4 || ack[0] == DEV::CONST::ACK_PACKET);
-    if (ack[0] == DEV::CONST::ACK_PACKET) {
+    CHKTRUE(ack[0] == 0xF4 || ack[0] == ACK_PACKET);
+    if (ack[0] == ACK_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == DEV::CONST::ACK_PACKET                     || (pack = 0));
+      WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_RDREG           || (pack = 0));
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
@@ -436,7 +437,7 @@ REP:
       continue;
     }
     CHKTRUE(err == sizeof(ack));
-    CHKTRUE(ack[0] == DEV::CONST::ACK_PACKET);
+    CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD_STOP);
     CHKTRUE(ack[2] == 0);
     CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
@@ -453,7 +454,7 @@ int PROTOBCM<DEV>::start() {
   int err = -1;
   int rep = 2;
   int cnt;
-  uint8_t ack[DEV::CONST::ACK_LENGTH];
+  uint8_t ack[ACK_LENGTH];
 REP:
   D(3,("Start measurement...\n"));
   CHK(err = send_com(DEV::CMD_START, 0, 0));
@@ -464,13 +465,13 @@ REP:
       --rep;
       goto REP;
     }
-    CHKTRUE(err == DEV::CONST::ACK_LENGTH ||
-        err == DEV::CONST::CONF_LENGTH);
-    CHKTRUE(ack[0] == DEV::CONST::ACK_PACKET || ack[0] == 0x11);
+    CHKTRUE(err == ACK_LENGTH ||
+        err == CONF_LENGTH);
+    CHKTRUE(ack[0] == ACK_PACKET || ack[0] == 0x11);
     CHKTRUE(ack[1] == DEV::CMD_START);
-    if (ack[0] == DEV::CONST::ACK_PACKET) {
+    if (ack[0] == ACK_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == DEV::CONST::ACK_PACKET                     || (pack = 0));
+      WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_START           || (pack = 0));
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
@@ -523,16 +524,16 @@ REP:
       --rep;
       goto REP;
     }
-    CHKTRUE(err == DEV::CONST::ACK_LENGTH ||
-        err == DEV::CONST::ADC_LENGTH ||
-        err == DEV::CONST::CONF_LENGTH);
+    CHKTRUE(err == ACK_LENGTH ||
+        err == ADC_LENGTH ||
+        err == CONF_LENGTH);
     CHKTRUE(ack[0] == 0xF1 ||
-        ack[0] == DEV::CONST::ACK_PACKET ||
+        ack[0] == ACK_PACKET ||
         ack[0] == 0x11
         );
-    if (ack[0] == DEV::CONST::ACK_PACKET) {
+    if (ack[0] == ACK_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == DEV::CONST::ACK_PACKET                     || (pack = 0));
+      WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_RDADC           || (pack = 0));
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
@@ -601,7 +602,7 @@ REP:
       continue;
     }
     CHKTRUE(err == sizeof(ack));
-    CHKTRUE(ack[0] == DEV::CONST::ACK_PACKET);
+    CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD_RESETCNT);
     CHKTRUE(ack[2] == 0);
     CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
@@ -616,7 +617,7 @@ CHK_ERR:
 template <typename DEV>
 int PROTOBCM<DEV>::wrrd_reg(unsigned int regn, unsigned int *param) {
   int err = -1;
-  uint8_t ack[DEV::CONST::ACK_LENGTH];
+  uint8_t ack[ACK_LENGTH];
   int cnt;
   int rep = 1;
   unsigned int check_value;
@@ -636,10 +637,10 @@ REP:
       continue;
     }
     CHKTRUE(err == sizeof(ack));
-    CHKTRUE(ack[0] == 0xF4 || ack[0] == DEV::CONST::ACK_PACKET);
-    if (ack[0] == DEV::CONST::ACK_PACKET) {
+    CHKTRUE(ack[0] == 0xF4 || ack[0] == ACK_PACKET);
+    if (ack[0] == ACK_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == DEV::CONST::ACK_PACKET                     || (pack = 0));
+      WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_WRRDREG         || (pack = 0));
       WARNTRUE(ack[2] == regn                     || (pack = 0));
       WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
@@ -688,7 +689,7 @@ REP:
       break;
     }
     CHKTRUE(err == sizeof(ack));
-    CHKTRUE(ack[0] == DEV::CONST::ACK_PACKET);
+    CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD_STARTGEN);
     CHKTRUE(ack[2] == 0);
     CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);

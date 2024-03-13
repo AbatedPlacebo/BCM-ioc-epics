@@ -29,7 +29,6 @@ template <typename DEV, template<typename> typename PROTOCOL, typename PV> class
   private:
     PROTOCOL<DEV> connection;
     PV pv;
-    const double WAVEFORM_LENGTH_TIME = (double)DEV::MAX_OSC_TIME / (double)DEV::MAX_POINTS;
     const char* hostname;
     int port;
     struct encode {
@@ -138,9 +137,9 @@ CHK_ERR:
 template <typename DEV, template<typename> typename PROTOCOL, typename PV>
 int PROTOHI<DEV, PROTOCOL, PV>::get_ADC_buffer(WFMtype(PV::arr) array, double wndBeg, double wndEnd){
   int err = -1;
-  int firstPage = wndBeg / (WAVEFORM_LENGTH_TIME * (double)DEV::TOTAL_PAGE_POINTS);
-  int lastPage = (wndEnd / (WAVEFORM_LENGTH_TIME * (double)DEV::TOTAL_PAGE_POINTS)) - 1;
-  array.resize((lastPage - firstPage + 1) * DEV::TOTAL_PAGE_POINTS);
+  int firstPage = wndBeg / (WAVEFORM_LENGTH_TIME * (double)TOTAL_PAGE_POINTS);
+  int lastPage = (wndEnd / (WAVEFORM_LENGTH_TIME * (double)TOTAL_PAGE_POINTS)) - 1;
+  array.resize((lastPage - firstPage + 1) * TOTAL_PAGE_POINTS);
   int size = array.size();
   int buffer[size];
   CHKTRUE(wndBeg >= 0 && wndEnd <= 320);
