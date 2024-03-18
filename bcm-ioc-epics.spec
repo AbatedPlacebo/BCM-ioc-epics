@@ -1,6 +1,6 @@
 Summary: An Input-Output Controller for K500 Beam Current Detector
 Name: bcm-ioc-epics
-Version: 0.7
+Version: 0.2
 Release: 1
 License: GPL
 Group: Applications/IOC
@@ -21,7 +21,8 @@ An Input-Output Controller for K500 Beam Current Detector. Written with EPICS.
 make
 
 %install
-
+mkdir -p $(DESTDIR)/epics/%{name}/
+cp -R . $(DESTDIR)/epics/%{name}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
