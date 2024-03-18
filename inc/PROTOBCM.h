@@ -260,7 +260,7 @@ REP:
       --rep;
       goto REP;
     }
-    if(err == 2 && ack[0] == 0x11) {
+    if(err == 2 && ack[0] == CONF_PACKET) {
       ++cnt;
       continue;
     }
@@ -268,7 +268,7 @@ REP:
     CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == cmd);
     CHKTRUE(ack[2] == regn);
-    CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+    CHKTRUE(ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE);
   }
   return err;
 CHK_ERR:
@@ -345,7 +345,7 @@ REP:
       --rep;
       goto REP;
     }
-    if (err == 2 && ack[0] == 0x11) {
+    if (err == 2 && ack[0] == CONF_PACKET) {
       ++cnt;
       continue;
     }
@@ -353,7 +353,7 @@ REP:
     CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD::CMD_WRREG);
     CHKTRUE(ack[2] == regn);
-    CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+    CHKTRUE(ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE);
   }
   return err;
 CHK_ERR:
@@ -381,26 +381,26 @@ REP:
       --rep;
       goto REP;
     }
-    if (err == 2 && ack[0] == 0x11)
+    if (err == 2 && ack[0] == CONF_PACKET)
     {
       ++cnt;
       continue;
     }
     CHKTRUE(err == sizeof(ack));
-    CHKTRUE(ack[0] == 0xF4 || ack[0] == ACK_PACKET);
+    CHKTRUE(ack[0] == REG_PACKET || ack[0] == ACK_PACKET);
     if (ack[0] == ACK_PACKET) {
       int pack = 1;
       WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_RDREG           || (pack = 0));
       WARNTRUE(ack[2] == regn                     || (pack = 0));
-      WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
+      WARNTRUE((ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE) || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
-    else if (ack[0] == 0xf4) {
+    else if (ack[0] == REG_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == 0xF4 || (pack = 0));
+      WARNTRUE(ack[0] == REG_PACKET || (pack = 0));
       WARNTRUE(ack[1] == regn || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x%02x%02x\n",
@@ -432,7 +432,7 @@ REP:
       --rep;
       goto REP;
     }
-    if (err == 2 && ack[0] == 0x11) {
+    if (err == 2 && ack[0] == CONF_PACKET) {
       ++cnt;
       continue;
     }
@@ -440,7 +440,7 @@ REP:
     CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD_STOP);
     CHKTRUE(ack[2] == 0);
-    CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+    CHKTRUE(ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE);
   }
   return err;
 CHK_ERR:
@@ -467,22 +467,22 @@ REP:
     }
     CHKTRUE(err == ACK_LENGTH ||
         err == CONF_LENGTH);
-    CHKTRUE(ack[0] == ACK_PACKET || ack[0] == 0x11);
+    CHKTRUE(ack[0] == ACK_PACKET || ack[0] == CONF_PACKET);
     CHKTRUE(ack[1] == DEV::CMD_START);
     if (ack[0] == ACK_PACKET) {
       int pack = 1;
       WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_START           || (pack = 0));
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
-      WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
+      WARNTRUE((ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE) || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
-    else if (ack[0] == 0x11) {
+    else if (ack[0] == CONF_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == 0x11 || (pack = 0));
-      WARNTRUE(ack[1] == 0x03 || (pack = 0));
+      WARNTRUE(ack[0] == CONF_PACKET || (pack = 0));
+      WARNTRUE(ack[1] == DEV::CMD_STARTGEN || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x\n",
               err, ack[0], ack[1]));
@@ -498,7 +498,7 @@ CHK_ERR:
 template <typename DEV>
 int PROTOBCM<DEV>::rd_ADC(int* arr, int size, unsigned int start_page, unsigned int end_page){
   int err = -1;
-  uint8_t ack[1034];
+  uint8_t ack[ADC_LENGTH];
   int cnt;
   int cnt_adc;
   int first_page = start_page;
@@ -527,39 +527,39 @@ REP:
     CHKTRUE(err == ACK_LENGTH ||
         err == ADC_LENGTH ||
         err == CONF_LENGTH);
-    CHKTRUE(ack[0] == 0xF1 ||
+    CHKTRUE(ack[0] == ADC_PACKET ||
         ack[0] == ACK_PACKET ||
-        ack[0] == 0x11
+        ack[0] == CONF_PACKET
         );
     if (ack[0] == ACK_PACKET) {
       int pack = 1;
       WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_RDADC           || (pack = 0));
       WARNTRUE(ack[2] == 0x00                     || (pack = 0));
-      WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
+      WARNTRUE((ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE) || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
-    else if (ack[0] == 0x11) {
+    else if (ack[0] == CONF_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == 0x11 || (pack = 0));
-      WARNTRUE(ack[1] == 0x03 || (pack = 0));
+      WARNTRUE(ack[0] == CONF_PACKET || (pack = 0));
+      WARNTRUE(ack[1] == DEV::CMD_START || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x\n",
               err, ack[0], ack[1]));
     }
-    else if (ack[0] == 0xf1) {
+    else if (ack[0] == ADC_PACKET) {
       cur_page = (ack[3] << 8) | (ack[4] & 0xFF);
       D(3, ("got adc package! page #%d\n", cur_page));
       int pack = 1;
-      WARNTRUE(ack[0] == 0xF1                     || (pack = 0));
-      WARNTRUE(ack[1] == 0x08                     || (pack = 0));
+      WARNTRUE(ack[0] == ADC_PACKET                     || (pack = 0));
+      WARNTRUE(ack[1] == DEV::CMD_RDADC                     || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
       std::vector<int> data;
-      for (int j = 10; j < 1034; j += 2){
+      for (int j = 10; j < ADC_LENGTH; j += 2){
         int value = (ack[j] << 8) | (ack[j+1] & 0xFF);
         data.push_back(value);
       }
@@ -597,7 +597,7 @@ REP:
       --rep;
       goto REP;
     }
-    if (err == 2 && ack[0] == 0x11) {
+    if (err == 2 && ack[0] == CONF_PACKET) {
       ++cnt;
       continue;
     }
@@ -605,7 +605,7 @@ REP:
     CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD_RESETCNT);
     CHKTRUE(ack[2] == 0);
-    CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+    CHKTRUE(ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE);
   }
   return err;
 CHK_ERR:
@@ -632,25 +632,25 @@ REP:
       --rep;
       goto REP;
     }
-    if (err == 2 && ack[0] == 0x11) {
+    if (err == 2 && ack[0] == CONF_PACKET) {
       ++cnt;
       continue;
     }
     CHKTRUE(err == sizeof(ack));
-    CHKTRUE(ack[0] == 0xF4 || ack[0] == ACK_PACKET);
+    CHKTRUE(ack[0] == REG_PACKET || ack[0] == ACK_PACKET);
     if (ack[0] == ACK_PACKET) {
       int pack = 1;
       WARNTRUE(ack[0] == ACK_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == DEV::CMD_WRRDREG         || (pack = 0));
       WARNTRUE(ack[2] == regn                     || (pack = 0));
-      WARNTRUE((ack[3] == 0x0f || ack[3] == 0x20) || (pack = 0));
+      WARNTRUE((ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE) || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x%02x%02x\n",
               err, ack[0], ack[1], ack[2], ack[3]));
     }
-    else if (ack[0] == 0xf4) {
+    else if (ack[0] == REG_PACKET) {
       int pack = 1;
-      WARNTRUE(ack[0] == 0xF4                     || (pack = 0));
+      WARNTRUE(ack[0] == REG_PACKET                     || (pack = 0));
       WARNTRUE(ack[1] == regn                     || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x%02x%02x\n",
@@ -683,8 +683,8 @@ REP:
       --rep;
       goto REP;
     }
-    if (err == 2 && ack[0] == 0x11) {
-      CHKTRUE(ack[0] == 0x11);
+    if (err == 2 && ack[0] == CONF_PACKET) {
+      CHKTRUE(ack[0] == CONF_PACKET);
       CHKTRUE(ack[1] == DEV::CMD_STARTGEN);
       break;
     }
@@ -692,7 +692,7 @@ REP:
     CHKTRUE(ack[0] == ACK_PACKET);
     CHKTRUE(ack[1] == DEV::CMD_STARTGEN);
     CHKTRUE(ack[2] == 0);
-    CHKTRUE(ack[3] == 0x0f || ack[3] == 0x20);
+    CHKTRUE(ack[3] == ACK_CORRECT || ack[3] == ACK_OUTOFRANGE);
   }
   return err;
 CHK_ERR:

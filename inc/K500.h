@@ -24,13 +24,21 @@
 
 #define ACK_PACKET 0x10
 
+#define REG_PACKET 0xf4
+
+#define CONF_PACKET 0x11
+
 #define ACK_LENGTH 4
 
 #define ADC_LENGTH 1034
 
-#define CONF_LENGTH 2
+#define ACK_CORRECT 0x0f
 
-#define CONF_PACKET 0x11
+#define ACK_OUTOFRANGE 0x20
+
+#define ADC_PACKET 0xf1
+
+#define CONF_LENGTH 2
 
 #define MAX_POINTS TOTAL_PAGE_POINTS * (MAX_PAGE + 1)
 
