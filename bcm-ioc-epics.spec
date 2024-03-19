@@ -4,7 +4,7 @@
 
 Summary: An Input-Output Controller for K500 Beam Current Detector
 Name: bcm-ioc-epics
-Version: 0.12
+Version: 0.1
 Release: 1
 License: GPL
 Group: Applications/IOC
