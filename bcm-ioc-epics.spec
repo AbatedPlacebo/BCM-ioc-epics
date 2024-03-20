@@ -4,7 +4,7 @@
 
 Summary: An Input-Output Controller for K500 Beam Current Detector
 Name: bcm-ioc-epics
-Version: 0.5
+Version: 0.6
 Release: 1
 License: GPL
 Group: Applications/IOC
@@ -33,7 +33,7 @@ rm -rf %{buildroot}
   FINAL_LOCATION=/epics/%{name} \
   INSTALL_LOCATION=%{buildroot}/epics/%{name} install
 
-sed "s#"TOP"[^)]\+#"TOP","/epics/%{name}"#g" %{envpaths_location} > %{envpaths_location}
+sed -i "s#"TOP"[^)]\+#"TOP","/epics/%{name}"#g" %{envpaths_location}
 
 %files
 %defattr(-,root,root,-)
