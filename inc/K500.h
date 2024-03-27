@@ -1,6 +1,6 @@
+// Constants for K500
 #ifndef K500_H
 #define K500_H
-// Constants for K500
 
 #define OSCSIZE 65536
 
@@ -40,10 +40,12 @@
 
 #define CONF_LENGTH 2
 
-#define MAX_POINTS TOTAL_PAGE_POINTS * (MAX_PAGE + 1)
+#define MAX_POINTS (TOTAL_PAGE_POINTS * (MAX_PAGE + 1))
 
-#define MAX_OSC_TIME 320
+#define MAX_OSC_TIME 320.0
 
-#define WAVEFORM_LENGTH_TIME (double)MAX_OSC_TIME / (double)MAX_POINTS
+#define WAVEFORM_LENGTH_TIME ((double)MAX_OSC_TIME / (double)MAX_POINTS)
+
+#define PARAB_SIZE 400
 
 #endif

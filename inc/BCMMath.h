@@ -92,7 +92,7 @@ int SignalProcessing<T>::find_roots(int* roots){
   roots[0] = beg;
   for (int i = beg; i < end; i++){
     current_sign = GSL_SIGN(data[i]);
-    if (fabs(data[i]) > (BCM->interpolation_trigger_value * BCM->current_coef) && root_condition == 0){
+    if (fabs(data[i]) > (BCM->interpolation_trigger_value * fabs(BCM->current_coef)) && root_condition == 0){
       root_count++;
       root_condition = 1;
     }
@@ -120,7 +120,7 @@ int SignalProcessing<T>::interp_points(int* roots, double* x, double* y, int i){
   auto absmax = std::abs(*it.first) > std::abs(*it.second) ? it.first : it.second;
   int idx = WFM(BCM->arr).distance(absmax) - BCM->parab_offset;
   idx = (idx < 0) ? 0 : idx;
-  for (int i = 0; i < BCM->parab_offset * 2 && i < INTERP_POINTS; i++) {
+  for (int i = 0; (i < (BCM->parab_offset * 2)) && (i < OSCSIZE); i++) {
     x[total_points] = BCM->arrXt[idx + i];
     y[total_points++] = BCM->arr[idx + i];
   }

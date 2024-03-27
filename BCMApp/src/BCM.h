@@ -1,6 +1,7 @@
 #ifndef BCM_H
 #define BCM_H
 #include "BCMDEV.h"
+#include "K500.h"
 
 #define VAR_MBB_V0 0
 #define VAR_MBB_V1 1
@@ -51,14 +52,14 @@
   decl_zone##_VAR_RO(int,k_gain,0,24,CFG_EVENT)  \
   decl_zone##_VAR_RO(double,timeQ,0,320,DATA_EVENT) \
   decl_zone##_VAR_RO(double,timeQY,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab0,100,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab1,100,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab2,100,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parab3,100,-2048,2048,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx0,100,0,320,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx1,100,0,320,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx2,100,0,320,DATA_EVENT) \
-  decl_zone##_ARR_RO(double,parabx3,100,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab0,PARAB_SIZE,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab1,PARAB_SIZE,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab2,PARAB_SIZE,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parab3,PARAB_SIZE,-2048,2048,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx0,PARAB_SIZE,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx1,PARAB_SIZE,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx2,PARAB_SIZE,0,320,DATA_EVENT) \
+  decl_zone##_ARR_RO(double,parabx3,PARAB_SIZE,0,320,DATA_EVENT) \
 
 
 

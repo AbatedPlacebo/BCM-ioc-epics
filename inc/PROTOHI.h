@@ -3,6 +3,8 @@
 
 #include "chk.h"
 #include "waveFormMap.h"
+#include "K500.h"
+#include <cmath>
 
 extern int debug_level;
 
@@ -137,12 +139,12 @@ CHK_ERR:
 template <typename DEV, template<typename> typename PROTOCOL, typename PV>
 int PROTOHI<DEV, PROTOCOL, PV>::get_ADC_buffer(WFMtype(PV::arr) array, double wndBeg, double wndEnd){
   int err = -1;
-  int firstPage = wndBeg / (WAVEFORM_LENGTH_TIME * (double)TOTAL_PAGE_POINTS);
-  int lastPage = (wndEnd / (WAVEFORM_LENGTH_TIME * (double)TOTAL_PAGE_POINTS)) - 1;
+  int firstPage = floor(wndBeg / WAVEFORM_LENGTH_TIME / TOTAL_PAGE_POINTS);
+  int lastPage = ceil(wndEnd / WAVEFORM_LENGTH_TIME / TOTAL_PAGE_POINTS);
   array.resize((lastPage - firstPage + 1) * TOTAL_PAGE_POINTS);
   int size = array.size();
   int buffer[size];
-  CHKTRUE(wndBeg >= 0 && wndEnd <= 320);
+  CHKTRUE(wndBeg >= 0 && wndEnd <= MAX_OSC_TIME);
   CHK(err = connection.rd_ADC(buffer, array.size(), firstPage, lastPage));
   for (int i = 0; i < size; i++){
     array[i] = (double)buffer[i] - 2048;

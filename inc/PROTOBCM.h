@@ -482,7 +482,7 @@ REP:
     else if (ack[0] == CONF_PACKET) {
       int pack = 1;
       WARNTRUE(ack[0] == CONF_PACKET || (pack = 0));
-      WARNTRUE(ack[1] == DEV::CMD_STARTGEN || (pack = 0));
+      WARNTRUE(ack[1] == DEV::CMD_START || (pack = 0));
       if (pack == 0)
         D(3,("err=%i ack=%02x%02x\n",
               err, ack[0], ack[1]));
