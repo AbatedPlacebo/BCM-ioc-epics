@@ -222,15 +222,6 @@ static void BCM_run(void* arg)
       epicsEventWaitWithTimeout(work_event, 1.0);
       continue; // единственное что мы можем здесь сделать это проверить необходимость подключения
     }
-    if(epicsEventTryWait(curEvent = BCM.wndBeg_event) == epicsEventWaitOK ||
-        epicsEventTryWait(curEvent = BCM.wndEnd_event) == epicsEventWaitOK) {
-      if (BCM.wndBeg > BCM.wndEnd){
-        double temp = BCM.wndBeg;
-        BCM.wndBeg = BCM.wndEnd;
-        BCM.wndEnd = temp;
-      }
-    }
-
     if(epicsEventTryWait(curEvent = BCM.update_stats_event) == epicsEventWaitOK) {
       if (BCM.update_stats == 1){
         Math.doAll();
@@ -241,7 +232,7 @@ static void BCM_run(void* arg)
     }
     if (BCM.osc_mode){
         CHK(Device.start_measurement());
-        CHK(Device.get_ADC_buffer(WFM(BCM.arr), BCM.wndBeg, BCM.wndEnd));
+        CHK(Device.get_ADC_buffer(WFM(BCM.arr), 0, BCM.wndEnd));
         WFM(BCM.arr) *= BCM.current_coef;
         lastMeasurement = 0;
         Math.doAll();

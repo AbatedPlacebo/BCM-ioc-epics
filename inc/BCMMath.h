@@ -43,7 +43,8 @@ class SignalProcessing {
 template <typename T>
 double SignalProcessing<T>::calcQ(){
   if (BCM->wndBeg > BCM->wndEnd){
-    std::swap(BCM->wndBeg, BCM->wndEnd); }
+    std::swap(BCM->wndBeg, BCM->wndEnd);
+  }
   double integral = 0.0;
   int i;
   int beg = round(BCM->wndBeg / WAVEFORM_LENGTH_TIME);
@@ -87,7 +88,7 @@ int SignalProcessing<T>::find_roots(int* roots){
   int root_condition = 0;
   WFMtype(BCM->arr) data = WFM(BCM->arr);
   previous_sign = current_sign = GSL_SIGN(data[0]);
-  int beg = round(BCM->wndBeg / WAVEFORM_LENGTH_TIME);
+  int beg = 0;
   int end = round(BCM->wndEnd / WAVEFORM_LENGTH_TIME);
   roots[0] = beg;
   for (int i = beg; i < end; i++){
@@ -105,6 +106,7 @@ int SignalProcessing<T>::find_roots(int* roots){
       }
     }
     previous_sign = current_sign;
+
   }
   roots[root_count++] = end;
   return root_count;
@@ -120,9 +122,10 @@ int SignalProcessing<T>::interp_points(int* roots, double* x, double* y, int i){
   auto absmax = std::abs(*it.first) > std::abs(*it.second) ? it.first : it.second;
   int idx = WFM(BCM->arr).distance(absmax) - BCM->parab_offset;
   idx = (idx < 0) ? 0 : idx;
-  for (int i = 0; (i < (BCM->parab_offset * 2)) && (i < OSCSIZE); i++) {
-    x[total_points] = BCM->arrXt[idx + i];
-    y[total_points++] = BCM->arr[idx + i];
+  for (int i = 0; i < BCM->points_per_parab; i++) {
+    int ptr = (int)((double)(i)/(double)(BCM->points_per_parab - 1) * (double)(2 * BCM->parab_offset)) + idx;
+    x[total_points] = BCM->arrXt[ptr];
+    y[total_points++] = BCM->arr[ptr];
   }
   return total_points;
 }
@@ -130,7 +133,7 @@ int SignalProcessing<T>::interp_points(int* roots, double* x, double* y, int i){
 template <typename T>
 int SignalProcessing<T>::interpolate(){
 
-  int points_cnt = BCM->points_per_parab * INTERP_POINTS;
+  int points_cnt = BCM->points_per_parab;
   int rootsx[INTERP_POINTS];
   double x[points_cnt];
   double y[points_cnt];
@@ -141,10 +144,12 @@ int SignalProcessing<T>::interpolate(){
     WFM4(BCM->parabx)[i].linspace(0,0);
     WFM4(BCM->parab)[i].linspace(0,0);
   }
-
   if (Nroots < 2){
     return -1;
   }
+  int begin = rootsx[0];
+
+  BCM->wndBeg = BCM->arrXt[begin];
 
   gsl_interp_accel *acc;
   const gsl_interp_type *t = gsl_interp_cspline;
@@ -160,7 +165,7 @@ int SignalProcessing<T>::interpolate(){
     int size = WFM4(BCM->parabx)[i].size();
     for (int j = 0; j < size; j++)
     {
-      xi = (1.0 - j / (double)(size)) * x[0] + (j / (double)(size)) * x[N-1];
+      xi = (1.0 - (double)j / (double)(size)) * x[0] + ((double)j / (double)(size)) * x[N-1];
       WFM4(BCM->parabx)[i][j] = xi;
       WFM4(BCM->parab)[i][j] = gsl_spline_eval (spline, xi, acc);
     }
@@ -169,6 +174,7 @@ int SignalProcessing<T>::interpolate(){
   }
   return 0;
 }
+
 template <typename T>
 void SignalProcessing<T>::doAll(){
   if (interpolate() == 0)

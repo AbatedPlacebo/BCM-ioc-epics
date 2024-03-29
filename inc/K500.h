@@ -46,6 +46,6 @@
 
 #define WAVEFORM_LENGTH_TIME ((double)MAX_OSC_TIME / (double)MAX_POINTS)
 
-#define PARAB_SIZE 400
+#define PARAB_SIZE 1000
 
 #endif
