@@ -4,7 +4,7 @@ text=$(git status | grep add)
 if [ -z "$text" ]; then
    echo "String is empty"
 else
-	git add :/
-	git commit -m "Commited by cron at $(date +%H:%M" "%Y-%m-%d)"
+	git commit -a -m "Commited by cron at $(date +%H:%M" "%Y-%m-%d)"
 	git push origin main
+	git push github main
 fi
